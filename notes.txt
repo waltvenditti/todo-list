@@ -1,0 +1,12 @@
+project(s) --> list(s) --> item(s)
+
+sidebar lists the projects (how tf do I even do this)
+
+button for add task
+
+project
+priority level
+delegate?
+due date for task
+
+'congrats, all tasks for today are done'
