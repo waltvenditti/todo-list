@@ -1,4 +1,4 @@
-project(s) --> list(s) --> item(s)
+projec --> sublist --> actual task items
 
 sidebar lists the projects (how tf do I even do this)
 
@@ -6,7 +6,9 @@ button for add task
 
 project
 priority level
-delegate?
 due date for task
+
+logic to automatically populate a "today" list and a "this week" list, plus maybe a "this month" list
+
 
 'congrats, all tasks for today are done'
