@@ -1,14 +1,45 @@
-projec --> sublist --> actual task items
-
-sidebar lists the projects (how tf do I even do this)
-
-button for add task
-
-project
-priority level
-due date for task
-
-logic to automatically populate a "today" list and a "this week" list, plus maybe a "this month" list
+CURRENT ITEMS TO PONDER
+- new project tab, its design
+- the project cards and their layout
 
 
-'congrats, all tasks for today are done'
+for each task:
+- title
+- desc
+- due date
+- priority 
+
+required:
+- should be able to view all projects
+- should be able to view each todo in each project (title and due date, color signifying priority)
+- ability to expand individual task items to see/edit details
+- ability to delete a task item
+
+Needed:
+- when you check an item as done, it should move to bottom of the list or something
+- button to add new project at top
+- expand/collapse project
+- for each project card, add task, delete project, change priority level
+- for each task, change due date, change priority, edit description or title, designate aleph
+- highest priority projects at top of page, lowest at bottom. This gets sorted automatically. Very top is an automatically generated list for todays items, followed by this weeks items. 
+
+make square buttons next to each item, when clicked they become checked and the item is considered done..? 
+
+Projects arranged linearly, down the page in column fashion. Each project element/card lists project name, number of items due today, number of items due this week.
+Title 
+Priority
+Total # items
+No. Due Today:
+No. Due This Week: 
+
+Non-numerical schema for ranking project and task priority (aleph/beth, gimel, zayin)
+For each project you can assign one alpeh (or none). Additionally, one project (or none) can be designated alpeh, and projects have the same ranking system as tasks. 
+
+Alpeh - white, beth - silver, gimel - gold, zayin - rust
+
+today and this week todo lists populated automatically. Tasks are listed by project priority, then task priority, then due date (for the this week list). 
+
+
+
+
+
