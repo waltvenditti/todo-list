@@ -1,6 +1,8 @@
 CURRENT ITEMS TO PONDER
-- new project tab, its design
+- new project tab, its design 
 - the project cards and their layout
+- when a task is done, do I delete it or cross it out and move it to the bottom of the list or something
+	- thinking move to bottom of list, then have a button to remove completed. 
 
 
 for each task:
@@ -10,8 +12,8 @@ for each task:
 - priority 
 
 required:
-- should be able to view all projects
-- should be able to view each todo in each project (title and due date, color signifying priority)
+- should be able to view all projects (a project is a distinct todo list)
+- should be able to view each todo in each project (title, due date, priority)
 - ability to expand individual task items to see/edit details
 - ability to delete a task item
 
@@ -20,24 +22,18 @@ Needed:
 - button to add new project at top
 - expand/collapse project
 - for each project card, add task, delete project, change priority level
-- for each task, change due date, change priority, edit description or title, designate aleph
-- highest priority projects at top of page, lowest at bottom. This gets sorted automatically. Very top is an automatically generated list for todays items, followed by this weeks items. 
+- for each task, change due date, change priority, edit description or title
+- due date is optional
 
-make square buttons next to each item, when clicked they become checked and the item is considered done..? 
+make buttons next to each item, when clicked they become checked and the item is considered done..? 
 
 Projects arranged linearly, down the page in column fashion. Each project element/card lists project name, number of items due today, number of items due this week.
 Title 
-Priority
 Total # items
-No. Due Today:
-No. Due This Week: 
 
-Non-numerical schema for ranking project and task priority (aleph/beth, gimel, zayin)
-For each project you can assign one alpeh (or none). Additionally, one project (or none) can be designated alpeh, and projects have the same ranking system as tasks. 
+Non-numerical schema for ranking project and task priority (primary, secondary, tertiary)/
 
-Alpeh - white, beth - silver, gimel - gold, zayin - rust
-
-today and this week todo lists populated automatically. Tasks are listed by project priority, then task priority, then due date (for the this week list). 
+today and this week todo lists populated automatically. Tasks are listed by project, then task priority, then due date (for the this week list). 
 
 
 
