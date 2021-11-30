@@ -24,14 +24,16 @@ Needed:
 - for each project card, add task, delete project, change priority level
 - for each task, change due date, change priority, edit description or title
 - due date is optional
+- can add tasks either through the header, with a menu that lets you pick which project to add it to (maybe even select 'New Project'?), or through the project cards themselves. 
+- buttons next to each item, when clicked they become checked and the item is considered done 
 
-make buttons next to each item, when clicked they become checked and the item is considered done..? 
-
-Projects arranged linearly, down the page in column fashion. Each project element/card lists project name, number of items due today, number of items due this week.
+Projects arranged linearly, down the page in column fashion. Each project element/card lists:
 Title 
 Total # items
+Expand button
+Properties button
 
-Non-numerical schema for ranking project and task priority (primary, secondary, tertiary)/
+Non-numerical schema for ranking project and task priority (primary, secondary, tertiary)
 
 today and this week todo lists populated automatically. Tasks are listed by project, then task priority, then due date (for the this week list). 
 
