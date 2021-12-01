@@ -3,6 +3,8 @@ CURRENT ITEMS TO PONDER
 - the project cards and their layout
 - when a task is done, do I delete it or cross it out and move it to the bottom of the list or something
 	- thinking move to bottom of list, then have a button to remove completed. 
+- past due functionality 
+
 
 
 for each task:
