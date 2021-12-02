@@ -1,4 +1,5 @@
 import './style.css';
+import './initial-html.js';
 
 const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
 
@@ -27,33 +28,10 @@ let date5 = addDays(date3, 7);
 console.log(isAfter(date4, date3));
 console.log(isBefore(date4, date5));
 
-let date6 = 'retard';
+let date6 = 'bad date format';
 console.log(isDate(date6));
 */
 
-
-
-
-//function that checks date that use entered. runs isValid on the date if a date was given at all. Returns null if no date given. Returns false is something went wrong. 
-
-
-
-
-
-//create basic html elements and display them 
-
-//a task is an object with properties title, desc, due date, priority. Contains methods in the form of functions for modifying these properties? 
-
-//a project is an array of task objects. It may have methods associated with it
-
-//there should be an array of projects. 
-
-//startup:
-    // get array from storage
-    // if none, or if empty, create default project 
-    // otherwise, populate page with existing projects 
-
-const projectArray = [];
 
 
 const taskFactory = function(initTitle, initDesc, initDueDate, initPriority) {
@@ -128,6 +106,10 @@ const projectFactory = function(initName) {
         taskArray.push(newTask);
     }
 
+    const removeTask = function(index) {
+        taskArray.splice(index, 1);
+    }
+
     const getTask = function(index) {
         if (checkTaskIndex(index, taskArray.length) == true) {
             return taskArray[index];
@@ -195,22 +177,40 @@ const projectFactory = function(initName) {
         else return false; 
     }
     
-    return {getProjName, changeProjName, addTask, getTaskCount, getTaskTitle, getTaskDesc, getTaskDueDate, getTaskPriority, getTaskDoneStatus, changeTaskTitle, changeTaskDesc, changeTaskDueDate, changeTaskPriority, changeTaskDoneStatus};
+    return {getProjName, changeProjName, addTask, removeTask, getTaskCount, getTaskTitle, getTaskDesc, getTaskDueDate, getTaskPriority, getTaskDoneStatus, changeTaskTitle, changeTaskDesc, changeTaskDueDate, changeTaskPriority, changeTaskDoneStatus};
 }
 
 
-function createNewProject(projectName) {
-    let newProject = projectFactory(projectName);
-    projectArray.push(newProject);
-    return newProject;
-}
+const projectHandler = function() {
+    const projectArray = [];
 
-let project1 = createNewProject('Project 1');
+    const createNewProject = function(projectName) {
+        let newProject = projectFactory(projectName);
+        projectArray.push(newProject);
+        return newProject;
+    }
+
+    const removeProject = function(index) {
+        projectArray.splice(index, 1);
+    }
+
+    const getProjectCount = function() {
+        return projectArray.length; 
+    }
+
+    return {createNewProject, removeProject, getProjectCount};
+}();
+
+
+let project1 = projectHandler.createNewProject('Project 1');
 project1.addTask('Task1', 'Desc1', '1/1/2001', 1);
+project1.addTask('Task2', 'Take care of the task.', '1/2/2001', 2);
 
-console.log(project1);
 console.log(project1.getTaskCount());
-console.log(project1.getTaskTitle(0));
-project1.changeTaskTitle(0, 'Task0');
-console.log(project1.getTaskTitle(0));
+
+console.log(project1.getTaskDesc(0));
+project1.changeTaskDesc(0, 'This is the first task. take care of it.');
+console.log(project1.getTaskDesc(0));
+
+
 

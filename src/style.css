@@ -1,0 +1,52 @@
+* {
+    caret-color: transparent;
+    border: 1px solid black; 
+}
+
+header {
+    display: flex; 
+    flex-direction: column;
+}
+
+header h1 {
+    text-align: center;
+    margin: auto;
+    margin-bottom: 24px; 
+}
+
+header button {
+    margin-right: 16px;
+}
+
+.header-input-div {
+    display: none;
+    flex-direction: column;
+}
+
+#new-proj-input {
+    max-width: 320px; 
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.project-container-div {
+    display: flex;
+    flex-direction: column;
+}
+
+.project-div-collapsed {
+    margin-top: 16px;
+    width: 400px;
+    height: 80px;
+    padding: 4px;
+}
+
+.project-div-expanded {
+
+}
+
+.project-div-collapsed p,
+.project-div.expanded p {
+    margin: 0;
+    margin-bottom: 4px;
+}
