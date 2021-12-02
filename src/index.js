@@ -55,11 +55,13 @@ console.log(isDate(date6));
 
 const projectArray = [];
 
+
 const taskFactory = function(initTitle, initDesc, initDueDate, initPriority) {
     let title = initTitle;
     let desc = initDesc;
     let dueDate = initDueDate;
     let priority = initPriority;
+    let doneStatus = false; 
 
     const getTitle = function() {
         return title;
@@ -75,6 +77,10 @@ const taskFactory = function(initTitle, initDesc, initDueDate, initPriority) {
 
     const getPriority = function() {
         return priority;
+    }
+
+    const getDoneStatus = function() {
+        return doneStatus;
     }
     
     const changeTitle = function(newTitle) {
@@ -93,18 +99,23 @@ const taskFactory = function(initTitle, initDesc, initDueDate, initPriority) {
         priority = newPriority;
     }
 
-    return {getTitle, getDesc, getDueDate, getPriority, changeTitle, changeDesc, changeDueDate, changePriority};
+    const changeDoneStatus = function() {
+        doneStatus = !doneStatus; 
+    }
+
+    return {getTitle, getDesc, getDueDate, getPriority, getDoneStatus, changeTitle, changeDesc, changeDueDate, changePriority, changeDoneStatus};
 };
+
 
 const projectFactory = function(initName) {
     let taskArray = [];
     let projectName = initName;
 
-    const getName = function() {
+    const getProjName = function() {
         return projectName;
     }
 
-    const changeName = function(newName) {
+    const changeProjName = function(newName) {
         projectName = newName;
     }
 
@@ -117,15 +128,65 @@ const projectFactory = function(initName) {
         taskArray.push(newTask);
     }
 
+    const getTask = function(index) {
+        if (checkTaskIndex(index, taskArray.length) == true) {
+            return taskArray[index];
+        }
+    }
+
     const getTaskTitle = function(index) {
         let task = getTask(index);
         return task.getTitle();
     }
 
-    const getTask = function(index) {
-        if (checkTaskIndex(index, taskArray.length) == true) {
-            return taskArray[index];
-        }
+    const getTaskDesc = function(index) {
+        let task = getTask(index);
+        return task.getDesc();
+    }
+
+    const getTaskDueDate = function(index) {
+        let task = getTask(index); 
+        return task.getDueDate();
+    }
+
+    const getTaskPriority = function(index) {
+        let task = getTask(index);
+        return task.getPriority(); 
+    }
+
+    const getTaskDoneStatus = function(index) {
+        let task = getTask(index);
+        return task.getDoneStatus();
+    }
+
+    const changeTaskTitle = function(index, newTitle) {
+        let task = getTask(index);
+        task.changeTitle(newTitle); 
+        return task.getTitle();
+    }
+
+    const changeTaskDesc = function(index, newDesc) {
+        let task = getTask(index);
+        task.changeDesc(newDesc); 
+        return task.getDesc(); 
+    }
+
+    const changeTaskDueDate = function(index, newDueDate) {
+        let task = getTask(index);
+        task.changeDueDate(newDueDate);
+        return task.getDueDate();
+    }
+
+    const changeTaskPriority = function(index, newPriority) {
+        let task = getTask(index);
+        task.changePriority(newPriority);
+        return task.getPriority();
+    }
+
+    const changeTaskDoneStatus = function(index) {
+        let task = getTask(index);
+        task.changeDoneStatus();
+        return task.getDoneStatus();
     }
 
     //this function may not be necessary
@@ -134,9 +195,9 @@ const projectFactory = function(initName) {
         else return false; 
     }
     
-
-    return {getName, changeName, addTask, getTaskCount, getTaskTitle};
+    return {getProjName, changeProjName, addTask, getTaskCount, getTaskTitle, getTaskDesc, getTaskDueDate, getTaskPriority, getTaskDoneStatus, changeTaskTitle, changeTaskDesc, changeTaskDueDate, changeTaskPriority, changeTaskDoneStatus};
 }
+
 
 function createNewProject(projectName) {
     let newProject = projectFactory(projectName);
@@ -149,4 +210,7 @@ project1.addTask('Task1', 'Desc1', '1/1/2001', 1);
 
 console.log(project1);
 console.log(project1.getTaskCount());
-console.log(project1.getTaskTitle());
+console.log(project1.getTaskTitle(0));
+project1.changeTaskTitle(0, 'Task0');
+console.log(project1.getTaskTitle(0));
+
