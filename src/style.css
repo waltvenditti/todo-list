@@ -6,6 +6,7 @@
 header {
     display: flex; 
     flex-direction: column;
+    padding-bottom: 4px;
 }
 
 header h1 {
@@ -29,6 +30,11 @@ header button {
     margin-bottom: 8px;
 }
 
+.auto-container-div {
+    display: flex;
+    flex-direction: column;
+}
+
 .project-container-div {
     display: flex;
     flex-direction: column;
@@ -49,4 +55,9 @@ header button {
 .project-div.expanded p {
     margin: 0;
     margin-bottom: 4px;
+}
+
+.project-card-header {
+    display: flex;
+    justify-content: space-between;
 }

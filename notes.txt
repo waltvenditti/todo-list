@@ -35,7 +35,7 @@ Total # items
 Expand button
 Properties button
 
-Non-numerical schema for ranking project and task priority (primary, secondary, tertiary)
+Non-numerical schema for ranking project and task priority (high=1, medium=2, low=3, or none=0)
 
 today and this week todo lists populated automatically. Tasks are listed by project, then task priority, then due date (for the this week list). 
 
