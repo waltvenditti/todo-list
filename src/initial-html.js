@@ -1,7 +1,7 @@
 const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
 const { pt, te } = require('date-fns/locale');
-import './factory-functions.js';
-
+import {projectHandler} from './factory-functions.js';
+import {makeProjectCards, clearProjectCards} from './dynamic-html.js';
 
 //create header DOM elements
 const body = document.querySelector('body');
@@ -17,8 +17,6 @@ const divAutoLists = document.createElement('div');
 const divTodoToday = document.createElement('div');
 const divTodoWeek = document.createElement('div');
 const divProjectList = document.createElement('div');
-const divTestProj1 = document.createElement('div');
-const divProjHeader = document.createElement('div');
 
 const btnNewProj = document.createElement('button');
 const btnNewTask = document.createElement('button');
@@ -26,8 +24,6 @@ const btnNewProjCancel = document.createElement('button');
 const btnNewProjAccept = document.createElement('button');
 const btnTodoTodayExp = document.createElement('button');
 const btnTodoWeekExp = document.createElement('button');
-const btnProj1Prop = document.createElement('button');
-const btnProj1Exp = document.createElement('button');
 //const btnNewTaskCancel = document.createElement('button');
 //const btnNewTaskAccept = document.createElement('button');
 
@@ -39,9 +35,6 @@ const pTodoWeek = document.createElement('p');
 const pTodoWeekCount = document.createElement('p');
 const h2AutoListTitle = document.createElement('h2');
 const h2ProjDivTitle = document.createElement('h2');
-const pTestProj1 = document.createElement('p');
-const pTestProj2 = document.createElement('p');
-
 
 //add text content to header DOM elements
 h1.textContent = 'TODO LIST';
@@ -59,10 +52,6 @@ btnTodoTodayExp.textContent = 'Expand';
 btnTodoWeekExp.textContent = 'Expand';
 h2AutoListTitle.textContent = 'Auto Lists';
 h2ProjDivTitle.textContent = 'Projects';
-pTestProj1.textContent = 'Project 1 Title';
-btnProj1Prop.textContent = 'Properties';
-pTestProj2.textContent = 'n items';
-btnProj1Exp.textContent = 'Expand';
 
 
 //add classes, IDs, or attributes to header DOM elements
@@ -73,9 +62,6 @@ divAutoLists.classList.add('auto-container-div');
 divTodoToday.classList.add('project-div-collapsed');
 divTodoWeek.classList.add('project-div-collapsed');
 divProjectList.classList.add('project-container-div');
-divTestProj1.classList.add('project-div-collapsed');
-divProjHeader.classList.add('project-card-header');
-
 newProjNameField.setAttribute('placeholder', 'Enter new project name');
 btnNewProjAccept.setAttribute('id', 'new-proj-accept');
 
@@ -96,8 +82,8 @@ divNewProj.appendChild(divnewProjBtns);
 divnewProjBtns.appendChild(btnNewProjAccept);
 divnewProjBtns.appendChild(btnNewProjCancel);
 
+body.appendChild(h2AutoListTitle);
 body.appendChild(divAutoLists);
-divAutoLists.appendChild(h2AutoListTitle);
 divAutoLists.appendChild(divTodoToday);
 divTodoToday.appendChild(pTodoToday);
 divTodoToday.appendChild(pTodoTodayCount);
@@ -107,26 +93,21 @@ divTodoWeek.appendChild(pTodoWeek);
 divTodoWeek.appendChild(pTodoWeekCount);
 divTodoWeek.appendChild(btnTodoWeekExp);
 
+body.appendChild(h2ProjDivTitle);
 body.appendChild(divProjectList);
-divProjectList.appendChild(h2ProjDivTitle);
-divProjectList.appendChild(divTestProj1);
-divTestProj1.appendChild(divProjHeader);
-divProjHeader.appendChild(pTestProj1);
-divProjHeader.appendChild(btnProj1Prop);
-divTestProj1.appendChild(pTestProj2);
-divTestProj1.appendChild(btnProj1Exp);
 
 
 //button listeners
 btnNewProj.addEventListener('click', () => {
     divNewProj.style['display'] = 'flex';
-    if (divNewTask.style['display'] != 'none') {
-        divNewTask.style['display'] = 'none';
+    //if (divNewTask.style['display'] != 'none') {
+        //divNewTask.style['display'] = 'none';
         //clear data fields in divNewTask
-    }
+    //}
 });
 
 btnNewProjCancel.addEventListener('click', () => {
+    newProjNameField.value = '';
     divNewProj.style['display'] = 'none';
 });
 
@@ -134,9 +115,12 @@ btnNewProjAccept.addEventListener('click', () => {
     let title = newProjNameField.value;
     if (title == '') return;
     projectHandler.createNewProject(title);
-    //get date from input field
-    //create a new project
-    //clear data and close div
+    alert(`Created project ${title}`);
+    newProjNameField.value = '';
+    divNewProj.style['display'] = 'none';
+    clearProjectCards();
+    makeProjectCards();
+    //generate new project card 
 });
 
 btnTodoTodayExp.addEventListener('click', () => {

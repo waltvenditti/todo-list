@@ -1,5 +1,6 @@
 import './style.css';
 import './initial-html.js';
+import {makeProjectCards} from './dynamic-html';
 import {projectHandler} from './factory-functions.js';
 
 const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
@@ -39,10 +40,13 @@ let date1 = new Date();
 project1.addTask('Task1', 'Desc1', date1, 1);
 project1.addTask('Task2', 'Take care of the task.', null, 2);
 
-console.log(project1.getTaskDueDate(0));
-console.log(project1.getTaskDueDate(1));
+//let rawDate = '2/8/91';
+//let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());
+//console.log(cookedDate);
 
-let rawDate = '2/8/91';
-let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());
-console.log(cookedDate);
+console.log(projectHandler.getProjectCount());
+let proj1 = projectHandler.getProject(0); 
+console.log(proj1.getTaskCount());
+console.log(proj1.getProjName());
 
+makeProjectCards();
