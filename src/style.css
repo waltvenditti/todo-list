@@ -19,6 +19,10 @@ header button {
     margin-right: 16px;
 }
 
+p {
+    margin: 0;
+}
+
 .header-input-div {
     display: none;
     flex-direction: column;
@@ -40,24 +44,29 @@ header button {
     flex-direction: column;
 }
 
-.project-div-collapsed {
+.project-div,
+.project-div-auto {
     margin-top: 16px;
     width: 400px;
-    height: 80px;
+    min-height: 80px;
+    height: 100%;
     padding: 4px;
 }
 
-.project-div-expanded {
+.task-div {
 
 }
 
-.project-div-collapsed p,
-.project-div.expanded p {
-    margin: 0;
-    margin-bottom: 4px;
+.indiv-task-div {
+    display: flex;
 }
 
-.project-card-header {
+.project-card-space-btwn {
     display: flex;
     justify-content: space-between;
+}
+
+.check-button {
+    border-radius: 50%;
+    width: 20px;
 }

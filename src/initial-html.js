@@ -59,8 +59,8 @@ divNewProj.classList.add('header-input-div');
 divNewTask.classList.add('header-input-div');
 newProjNameField.setAttribute('id', 'new-proj-input');
 divAutoLists.classList.add('auto-container-div');
-divTodoToday.classList.add('project-div-collapsed');
-divTodoWeek.classList.add('project-div-collapsed');
+divTodoToday.classList.add('project-div-auto');
+divTodoWeek.classList.add('project-div-auto');
 divProjectList.classList.add('project-container-div');
 newProjNameField.setAttribute('placeholder', 'Enter new project name');
 btnNewProjAccept.setAttribute('id', 'new-proj-accept');
@@ -115,7 +115,6 @@ btnNewProjAccept.addEventListener('click', () => {
     let title = newProjNameField.value;
     if (title == '') return;
     projectHandler.createNewProject(title);
-    alert(`Created project ${title}`);
     newProjNameField.value = '';
     divNewProj.style['display'] = 'none';
     clearProjectCards();

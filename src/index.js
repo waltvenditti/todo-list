@@ -35,6 +35,8 @@ console.log(isDate(date6));
 */
 
 projectHandler.createNewProject('Project 1');
+projectHandler.createNewProject('Project 2');
+projectHandler.createNewProject('Project 3');
 let project1 = projectHandler.getProject(0);
 let date1 = new Date();
 project1.addTask('Task1', 'Desc1', date1, 1);
