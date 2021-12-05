@@ -57,8 +57,27 @@ p {
 
 }
 
+.new-task-div {
+    display: flex;
+    flex-direction: column;
+}
+
 .indiv-task-div {
     display: flex;
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.indiv-task-btn-and-title-div {
+    display: flex;
+}
+
+.indiv-task-exp-btn {
+    
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto;
+    gap: 24px;
 }
 
 .project-card-space-btwn {
