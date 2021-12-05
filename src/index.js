@@ -46,9 +46,4 @@ project1.addTask('Task2', 'Take care of the task.', null, 2);
 //let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());
 //console.log(cookedDate);
 
-console.log(projectHandler.getProjectCount());
-let proj1 = projectHandler.getProject(0); 
-console.log(proj1.getTaskCount());
-console.log(proj1.getProjName());
-
 makeProjectCards();

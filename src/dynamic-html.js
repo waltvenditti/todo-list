@@ -4,9 +4,12 @@ const {format} = require('date-fns');
 export function makeProjectCards() {
     let projCount = projectHandler.getProjectCount();
     let projContainer = document.querySelector('.project-container-div');
+    projContainer.setAttribute('id', 'projContainer');
+
     for (let i = 0; i < projCount; i++) {
         let projObj = projectHandler.getProject(i);
         let projName = projObj.getProjName();
+        let cardID = `pid${i}`;
 
         let divProj = document.createElement('div');
         let divHeader = document.createElement('div');
@@ -25,13 +28,28 @@ export function makeProjectCards() {
         let btnCancelAddTask = document.createElement('button');
         let btnExpand = document.createElement('button');
         let btnCollapse = document.createElement('button');
-        let btnClosProp = document.createElement('button');
+        let btnCloseProp = document.createElement('button');
         let btnNewName = document.createElement('button');
         let btnDelProj = document.createElement('button');
 
+        //ids and other attributes 
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        divProj.setAttribute('id', cardID);
+        btnDelProj.setAttribute('id', `btnDelProj${cardID}`)
+        btnProperties.setAttribute('id', `btnProperties${cardID}`);
+        btnCloseProp.setAttribute('id', `btnCloseProp${cardID}`);
+        divProp.setAttribute('id', `divProp${cardID}`);
+        divProp2.setAttribute('id', `divProp2${cardID}`);
+        inputProjName.setAttribute('id', `inputProjName${cardID}`);
+        pProjTitle.setAttribute('id', `pProjTitle${cardID}`);
+        btnNewName.setAttribute('id', `btnNewName${cardID}`);
+        btnExpand.setAttribute('id', `btnExpand${cardID}`);
+        btnCollapse.setAttribute('id', `btnCollapse${cardID}`);
 
-        divProj.setAttribute('id', `pid${i}`);
         inputProjName.setAttribute('placeholder', `${projName}`);
+
 
         divProj.classList.add('project-div');
         divHeader.classList.add('project-card-space-btwn');
@@ -39,7 +57,7 @@ export function makeProjectCards() {
         divProp2.classList.add('project-card-space-btwn');
         divNewTask.classList.add('new-task-div');
 
-        btnClosProp.style['display'] = 'none';
+        btnCloseProp.style['display'] = 'none';
         divProp.style['display'] = 'none';
         divProp2.style['display'] = 'none';
         inputProjName.style['width'] = '124px';
@@ -53,103 +71,23 @@ export function makeProjectCards() {
         btnAddTask.textContent = 'New Task';
         btnExpand.textContent = 'Expand Tasks';
         btnCollapse.textContent = 'Collapse Tasks';
-        btnClosProp.textContent = 'Close Properties';
+        btnCloseProp.textContent = 'Close Properties';
         pProjName.textContent = 'Project Name:';
         btnNewName.textContent = 'Submit New Name';
         btnDelProj.textContent = 'Delete Project';
         btnCancelAddTask.textContent = 'Cancel Add Task';
 
-        btnProperties.addEventListener('click', () => {
-            btnProperties.style['display'] = 'none';
-            btnClosProp.style['display'] = 'inline';
-            divProp.style['display'] = 'flex';
-            divProp2.style['display'] = 'flex';
-        });
+        btnProperties.addEventListener('click', clickBtnProperties);
+        btnCloseProp.addEventListener('click', clickBtnCloseProp);
+        btnDelProj.addEventListener('click', clickBtnDelProj);
+        btnNewName.addEventListener('click', clickBtnNewName);
+        btnExpand.addEventListener('click', clickBtnExpand);
 
-        btnClosProp.addEventListener('click', () => {
-            btnProperties.style['display'] = 'inline';
-            btnClosProp.style['display'] = 'none';
-            inputProjName.value = '';
-            divProp.style['display'] = 'none';
-            divProp2.style['display'] = 'none';
-        });
-
-        btnDelProj.addEventListener('click', () => {
-            projContainer.removeChild(divProj);
-            projectHandler.removeProject(i);
-            redoProjectIDs();
-        });
-
-        btnNewName.addEventListener('click', () => {
-            let newName = inputProjName.value;
-            if (newName != '') {
-                projObj = projectHandler.getProject(i);
-                projObj.changeProjName(newName);
-                pProjTitle.textContent = newName;
-                inputProjName.value = '';
-            }
-        });
-
-        btnExpand.addEventListener('click', () => {
-            //add new class to expand proj card 
-            let taskCount = projObj.getTaskCount();
-            let divTask = document.createElement('div');
-
-            divTask.classList.add('task-div');
-
-            divProj.appendChild(divTask);
-
-            for (let j = 0; j < taskCount; j++) {
-                //DOM elements
-                let divTaskInd = document.createElement('div');
-                let divBtnTitle = document.createElement('div');
-                let divBtnExp = document.createElement('div');
-                let btnDone = document.createElement('button');
-                let pTaskTitle = document.createElement('p');
-                let pDueDate = document.createElement('p');
-                let pPriority = document.createElement('p');
-                let btnExpand = document.createElement('button');
-                
-                //classes
-                divTaskInd.classList.add('indiv-task-div');
-                btnDone.classList.add('check-button');
-                divBtnTitle.classList.add('indiv-task-btn-and-title-div');
-                divBtnExp.classList.add('indiv-task-exp-btn');
-                
-
-                //all this to determine text content 
-                pTaskTitle.textContent = projObj.getTaskTitle(j);
-                let taskDate = projObj.getTaskDueDate(j);
-                if (taskDate != null) {
-                    let date = format(projObj.getTaskDueDate(j), 'MM/dd/yy');
-                    pDueDate.textContent = date;
-                } else {
-                    pDueDate.textContent = '. . . . . . . .';
-                }
-                let rawPriority = projObj.getTaskPriority(j)
-                let taskPriority;
-                if (rawPriority == 0) taskPriority = 'none';
-                if (rawPriority == 3) taskPriority = 'Low';
-                if (rawPriority == 2) taskPriority = 'Medium';
-                if (rawPriority == 1) taskPriority = 'High';
-                pPriority.textContent = taskPriority;
-                console.log(`run ${i}`);
-                btnExpand.textContent = 'Expand';
-                
-                //construct DOM 
-                divTask.appendChild(divTaskInd);
-                divTaskInd.appendChild(divBtnTitle);
-                divBtnTitle.appendChild(btnDone);
-                divBtnTitle.appendChild(pTaskTitle);
-                divTaskInd.appendChild(pDueDate);
-                divTaskInd.appendChild(divBtnExp);
-                divBtnExp.appendChild(pPriority);
-                divBtnExp.appendChild(btnExpand);
-            }
-            btnExpand.style['display'] = 'none';
-            btnCollapse.style['display'] = 'inline';
-        });
-
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         btnCollapse.addEventListener('click', () => {
             let taskDiv = document.querySelector('.task-div');
             divProj.removeChild(taskDiv);
@@ -161,35 +99,102 @@ export function makeProjectCards() {
             divNewTask.style['display'] = 'block';
             btnCancelAddTask.style['display'] = 'inline';
             btnAddTask.style['display'] = 'none';
+
+            let divFormat1 = document.createElement('div');
+            let divFormat2 = document.createElement('div');
+            let divFormat3 = document.createElement('div');
+            let divFormat4 = document.createElement('div');
             let pName = document.createElement('p');
             let pDesc = document.createElement('p');
             let pDate = document.createElement('p');
             let pPri = document.createElement('p');
-            let inputTaskName = document.createElement('input');
-            let inputTaskDesc = document.createElement('input');
-            let inputDueDate = document.createElement('input');
+            let inpName = document.createElement('input');
+            let inpDesc = document.createElement('input');
+            let inpDate = document.createElement('input');
+            let inpRB0 = document.createElement('input');
+            let inpRB1 = document.createElement('input');
+            let inpRB2 = document.createElement('input');
+            let inpRB3 = document.createElement('input');
+            let labelRB0 = document.createElement('label');
+            let labelRB1 = document.createElement('label');
+            let labelRB2 = document.createElement('label');
+            let labelRB3 = document.createElement('label');
+            let btnSubmitNewTask = document.createElement('button');
 
             pName.textContent = 'Name:';
             pDesc.textContent = 'Desc:';
             pDate.textContent = 'Date Due:';
             pPri.textContent = 'Priority:';
+            labelRB0.textContent = 'None';
+            labelRB1.textContent = 'High';
+            labelRB2.textContent = 'Medium';
+            labelRB3.textContent = 'Low';
+            btnSubmitNewTask.textContent = 'Submit';
 
-            
-            //radio buttons...
+            divFormat1.style['display'] = 'flex';
+            divFormat2.style['display'] = 'flex';
+            divFormat3.style['display'] = 'flex';
+            divFormat4.style['display'] = 'flex';
+            inpName.setAttribute('placeholder', 'Task Name');
+            inpDesc.setAttribute('placeholder', 'Description');
+            inpDate.setAttribute('type', 'date');
 
+            inpRB0.checked = 'true';
+            inpRB0.setAttribute('type', 'radio');
+            inpRB0.setAttribute('name', 'prty');
+            inpRB0.setAttribute('value', 0);
+            inpRB1.setAttribute('type', 'radio');
+            inpRB1.setAttribute('name', 'prty');
+            inpRB1.setAttribute('value', 1);
+            inpRB2.setAttribute('type', 'radio');
+            inpRB2.setAttribute('name', 'prty');
+            inpRB2.setAttribute('value', 2);
+            inpRB3.setAttribute('type', 'radio');
+            inpRB3.setAttribute('name', 'prty');
+            inpRB3.setAttribute('value', 3);
+
+            labelRB0.setAttribute('for', 'inpRB0');
+            labelRB1.setAttribute('for', 'inpRB1');
+            labelRB2.setAttribute('for', 'inpRB2');
+            labelRB3.setAttribute('for', 'inpRB3');
+
+
+            divNewTask.appendChild(divFormat1);
+            divFormat1.appendChild(pName);
+            divFormat1.appendChild(inpName);
+            divNewTask.appendChild(divFormat2);
+            divFormat2.appendChild(pDesc);
+            divFormat2.appendChild(inpDesc);
+            divNewTask.appendChild(divFormat3);
+            divFormat3.appendChild(pDate);
+            divFormat3.appendChild(inpDate);
+            divNewTask.appendChild(divFormat4);
+            divFormat4.appendChild(pPri);
+            divFormat4.appendChild(inpRB0);
+            divFormat4.appendChild(labelRB0);
+            divFormat4.appendChild(inpRB3);
+            divFormat4.appendChild(labelRB3);
+            divFormat4.appendChild(inpRB2);
+            divFormat4.appendChild(labelRB2);
+            divFormat4.appendChild(inpRB1);
+            divFormat4.appendChild(labelRB1);
+            divNewTask.appendChild(btnSubmitNewTask);
         });
 
         btnCancelAddTask.addEventListener('click', () => {
             divNewTask.style['display'] = 'none';
             btnCancelAddTask.style['display'] = 'none';
             btnAddTask.style['display'] = 'inline';
+            while (divNewTask.lastChild) {
+                divNewTask.removeChild(divNewTask.lastChild);
+            };
         });
 
         projContainer.appendChild(divProj);
         divProj.appendChild(divHeader);
         divHeader.appendChild(pProjTitle);
         divHeader.appendChild(btnProperties);
-        divHeader.appendChild(btnClosProp);
+        divHeader.appendChild(btnCloseProp);
         divProj.appendChild(divProp);
         divProj.appendChild(divProp2);
         divProp.appendChild(pProjName);
@@ -206,16 +211,16 @@ export function makeProjectCards() {
     }
 }
 
-
 export function clearProjectCards() {
     let projContainer = document.querySelector('.project-container-div');
-    let prevProjCount = projectHandler.getProjectCount() - 1;
-    for (let i = 0; i < prevProjCount; i++) {
+    let projCount = document.querySelectorAll('.project-div');
+    console.log(projCount.length);
+    for (let i = 0; i < projCount.length; i++) {
         let projCard = document.querySelector(`#pid${i}`);
         projContainer.removeChild(projCard);
+        console.log(i);
     }
 }
-
 
 function redoProjectIDs() {
     let projCards = document.querySelectorAll('.project-div');
@@ -223,4 +228,122 @@ function redoProjectIDs() {
         projCards[i].removeAttribute('id');
         projCards[i].setAttribute('id', `pid${i}`);
     }
+}
+
+//button functions 
+function clickBtnProperties() {
+    let cardID = this.id.slice(13);
+    let btnProperties = document.querySelector(`#btnProperties${cardID}`);
+    let btnCloseProp = document.querySelector(`#btnCloseProp${cardID}`);
+    let divProp = document.querySelector(`#divProp${cardID}`);
+    let divProp2 = document.querySelector(`#divProp2${cardID}`);
+
+    btnProperties.style['display'] = 'none';
+    btnCloseProp.style['display'] = 'inline';
+    divProp.style['display'] = 'flex';
+    divProp2.style['display'] = 'flex';
+}
+
+function clickBtnCloseProp() {
+    let cardID = this.id.slice(12);
+    let btnProperties = document.querySelector(`#btnProperties${cardID}`);
+    let btnCloseProp = document.querySelector(`#btnCloseProp${cardID}`);
+    let divProp = document.querySelector(`#divProp${cardID}`);
+    let divProp2 = document.querySelector(`#divProp2${cardID}`);
+    let inputProjName = document.querySelector(`#inputProjName${cardID}`);
+
+    btnProperties.style['display'] = 'inline';
+    btnCloseProp.style['display'] = 'none';
+    inputProjName.value = '';
+    divProp.style['display'] = 'none';
+    divProp2.style['display'] = 'none';
+}
+
+function clickBtnDelProj() {
+    let projectIndex = this.id.slice(13);
+    clearProjectCards();
+    projectHandler.removeProject(projectIndex);
+    makeProjectCards();
+}
+
+function clickBtnNewName() {
+    let cardID = this.id.slice(10);
+    let index = this.id.slice(13);
+    let inputProjName = document.querySelector(`#inputProjName${cardID}`);
+    let pProjTitle = document.querySelector(`#pProjTitle${cardID}`);
+    let newName = inputProjName.value;
+
+    if (newName != '') {
+        let projObj = projectHandler.getProject(index);
+        projObj.changeProjName(newName);
+        pProjTitle.textContent = newName;
+        inputProjName.value = '';
+        clickBtnCloseProp();
+    }
+}
+
+function clickBtnExpand() {
+    let cardID = this.id.slice(9);
+    let index = this.id.slice(12);
+    let projObj = projectHandler.getProject(index);
+    let taskCount = projObj.getTaskCount();
+    let divProj = document.querySelector(`#${cardID}`);
+    let btnExpand = document.querySelector(`#btnExpand${cardID}`);
+    let btnCollapse = document.querySelector(`#btnCollapse${cardID}`);
+
+    let divTask = document.createElement('div');
+    divTask.classList.add('task-div');
+    divProj.appendChild(divTask);
+
+    for (let j = 0; j < taskCount; j++) {
+        //DOM elements
+        let divTaskInd = document.createElement('div');
+        let divBtnTitle = document.createElement('div');
+        let divBtnExp = document.createElement('div');
+        let btnDone = document.createElement('button');
+        let pTaskTitle = document.createElement('p');
+        let pDueDate = document.createElement('p');
+        let pPriority = document.createElement('p');
+        let btnTaskExpand = document.createElement('button');
+
+        //classes
+        divTaskInd.classList.add('indiv-task-div');
+        btnDone.classList.add('check-button');
+        divBtnTitle.classList.add('indiv-task-btn-and-title-div');
+        divBtnExp.classList.add('indiv-task-exp-btn');
+
+        //text content 
+        pTaskTitle.textContent = projObj.getTaskTitle(j);
+        let taskDate = projObj.getTaskDueDate(j);
+        if (taskDate != null) {
+            let date = format(projObj.getTaskDueDate(j), 'MM/dd/yy');
+            pDueDate.textContent = date;
+        } else {
+            pDueDate.textContent = '. . . . . . . .';
+        }
+        let rawPriority = projObj.getTaskPriority(j)
+        let taskPriority;
+        if (rawPriority == 0) taskPriority = 'none';
+        if (rawPriority == 3) taskPriority = 'Low';
+        if (rawPriority == 2) taskPriority = 'Medium';
+        if (rawPriority == 1) taskPriority = 'High';
+        pPriority.textContent = taskPriority;
+        btnTaskExpand.textContent = 'Expand';
+        
+        //construct DOM 
+        divTask.appendChild(divTaskInd);
+        divTaskInd.appendChild(divBtnTitle);
+        divBtnTitle.appendChild(btnDone);
+        divBtnTitle.appendChild(pTaskTitle);
+        divTaskInd.appendChild(pDueDate);
+        divTaskInd.appendChild(divBtnExp);
+        divBtnExp.appendChild(pPriority);
+        divBtnExp.appendChild(btnTaskExpand);
+    };
+    btnExpand.style['display'] = 'none';
+    btnCollapse.style['display'] = 'inline';
+}
+
+function clickBtnCollapse() {
+
 }
