@@ -53,10 +53,6 @@ p {
     padding: 4px;
 }
 
-.task-div {
-
-}
-
 .new-task-div {
     display: flex;
     flex-direction: column;

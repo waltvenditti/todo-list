@@ -67,6 +67,7 @@ export const projectFactory = function(initName) {
         return taskArray.length;
     }
 
+    //dates are stored either as Date objects or as null (if there is no due date)
     const addTask = function(title, desc, dueDate, priority) {
         let newTask = taskFactory(title, desc, dueDate, priority);
         taskArray.push(newTask);
