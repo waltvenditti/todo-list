@@ -40,7 +40,7 @@ projectHandler.createNewProject('Project 3');
 let project1 = projectHandler.getProject(0);
 let date1 = new Date();
 project1.addTask('Task1', 'Desc1', date1, 1);
-project1.addTask('Task2', 'Take care of the task.', null, 2);
+project1.addTask('Task2', 'Take care of the task. Take care of the task. Take care of the task.', null, 2);
 
 //let rawDate = '2/8/91';
 //let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());
