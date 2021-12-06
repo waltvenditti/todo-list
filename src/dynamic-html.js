@@ -147,6 +147,16 @@ function getTaskIndex(inputID) {
     return arrayID[2];
 }
 
+function extractTastTitle(inputID) {
+    let arrayID = inputID.split('_');
+    return arrayID[3];
+}
+
+function getDoneStatus(projIndex, taskIndex) {
+    let projObj = projectHandler.getProject(projIndex);
+    return projObj.getTaskDoneStatus(taskIndex);
+}
+
 //button functions 
 function clickBtnProperties() {
     let btnID = this.id;
@@ -229,12 +239,16 @@ function clickBtnExpand(inputID) {
         let pDueDate = document.createElement('p');
         let pPriority = document.createElement('p');
         let btnTaskExpand = document.createElement('button');
+        let btnTaskCollapse = document.createElement('button');
         let taskTitle = projObj.getTaskTitle(j);
 
-        //classes and id assigment
+        //classes, attributes, and id assigments
         divMainIndTask.setAttribute('id', `${cardID}_${j}_${taskTitle}`);
         btnTaskExpand.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnTaskExpand`);
+        btnTaskCollapse.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnTaskCollapse`);
         btnDone.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnDone`);
+
+        btnTaskCollapse.style['display'] = 'none';
 
         divMainIndTask.classList.add('new-task-div');
         divTaskInd.classList.add('indiv-task-div');
@@ -244,6 +258,8 @@ function clickBtnExpand(inputID) {
 
         //button click events
         btnTaskExpand.addEventListener('click', clickBtnTaskExpand);
+        btnTaskCollapse.addEventListener('click', clickBtnTaskCollapse);
+        btnDone.addEventListener('click', clickBtnDone);
 
         //text content 
         pTaskTitle.textContent = taskTitle;
@@ -262,6 +278,7 @@ function clickBtnExpand(inputID) {
         if (rawPriority == 1) taskPriority = 'High';
         pPriority.textContent = taskPriority;
         btnTaskExpand.textContent = 'Expand';
+        btnTaskCollapse.textContent = 'Collapse';
         
         //construct DOM 
         divTask.appendChild(divMainIndTask);
@@ -273,9 +290,31 @@ function clickBtnExpand(inputID) {
         divTaskInd.appendChild(divBtnExp);
         divBtnExp.appendChild(pPriority);
         divBtnExp.appendChild(btnTaskExpand);
+        divBtnExp.appendChild(btnTaskCollapse);
     };
     btnExpand.style['display'] = 'none';
     btnCollapse.style['display'] = 'inline';
+}
+
+function clickBtnDone() {
+    let cardID = getCardID(this.id);
+    let projIndex = getProjIndex(cardID);
+    let taskIndex = getTaskIndex(this.id);
+    let projObj = projectHandler.getProject(projIndex);
+    projObj.changeTaskDoneStatus(taskIndex); 
+    
+    let doneStatus = getDoneStatus(projIndex, taskIndex);
+    console.log(doneStatus);
+    if (doneStatus == false) {
+        this.style['background-color'] = 'aliceblue';
+    } else {
+        this.style['background-color'] = 'seashell';
+    };
+    
+    //write a separate color control function 
+        //checks done status on task
+        //applies appropriate colors to task text 
+        //this function will be used by expand tasks
 }
 
 function clickBtnTaskExpand() {
@@ -289,7 +328,9 @@ function clickBtnTaskExpand() {
     if (taskDesc == undefined) taskDesc = '';
 
     let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}`);
+    let btnTaskCollapse = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}_btnTaskCollapse`);
 
+    let divTaskIndNew = document.createElement('div');
     let divButtons = document.createElement('div');
     let pDesc = document.createElement('p');
     let btnEditTask = document.createElement('button');
@@ -300,13 +341,40 @@ function clickBtnTaskExpand() {
     btnDelTask.textContent = 'Delete Task';
 
     divButtons.classList.add('project-card-space-btwn');
+
     btnEditTask.setAttribute('id', `${cardID}_btnEditTask`);
     btnDelTask.setAttribute('id', `${cardID}_btnDelTask`);
+    divTaskIndNew.setAttribute('id', `${cardID}_${taskIndex}_${taskTitle}_divTaskIndNew`);
 
-    divTaskInd.appendChild(pDesc);
-    divTaskInd.appendChild(divButtons);
+    divTaskInd.appendChild(divTaskIndNew);
+    divTaskIndNew.appendChild(pDesc);
+    divTaskIndNew.appendChild(divButtons);
     divButtons.appendChild(btnEditTask);
     divButtons.appendChild(btnDelTask);
+
+    this.style['display'] = 'none';
+    btnTaskCollapse.style['display'] = 'inline';
+}
+
+function clickButtonEditTask() {
+
+}
+
+function clickButtonDelTask() {
+
+}
+
+function clickBtnTaskCollapse() {
+    let cardID = getCardID(this.id);
+    let taskIndex = getTaskIndex(this.id);
+    let taskTitle = extractTastTitle(this.id);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}`);
+    let divTaskIndNew = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}_divTaskIndNew`);
+    let btnTaskExpand = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}_btnTaskExpand`);
+
+    divTaskInd.removeChild(divTaskIndNew);
+    this.style['display'] = 'none';
+    btnTaskExpand.style['display'] = 'inline';
 }
 
 function clickBtnCollapse(inputID) {

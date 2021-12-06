@@ -82,6 +82,8 @@ p {
 }
 
 .check-button {
+    background-color: aliceblue;
     border-radius: 50%;
-    width: 20px;
+    width: 25px;
+    height: 25px;
 }

@@ -7,6 +7,15 @@ export const taskFactory = function(initTitle, initDesc, initDueDate, initPriori
     let priority = initPriority;
     let doneStatus = false; 
 
+    if (title.includes('_')) {
+        let titleArray = title.split('_');
+        let newTitle = '';
+        for (let i = 0; i < titleArray.length; i++) {
+            newTitle += `${titleArray[i]} `;
+        }
+        title = newTitle;
+    }
+
     const getTitle = function() {
         return title;
     }
