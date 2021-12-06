@@ -309,25 +309,23 @@ function clickBtnTaskExpand() {
     divButtons.appendChild(btnDelTask);
 }
 
-//resume here
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function clickBtnCollapse(inputID) {
-    let cardID = checkInput(inputID, 11);
-    let taskDiv = document.querySelector(`#divTask${cardID}`);
+    let cardID = checkInput(inputID);
+    let taskDiv = document.querySelector(`#${cardID}_divTask`);
     if (taskDiv == null) return;
     let divProj = document.querySelector(`#${cardID}`);
-    let btnExpand = document.querySelector(`#btnExpand${cardID}`);
-    let btnCollapse = document.querySelector(`#btnCollapse${cardID}`);
+    let btnExpand = document.querySelector(`#${cardID}_btnExpand`);
+    let btnCollapse = document.querySelector(`#${cardID}_btnCollapse`);
     divProj.removeChild(taskDiv);
     btnExpand.style['display'] = 'inline';
     btnCollapse.style['display'] = 'none';
 }
 
 function clickBtnAddTask() {
-    let cardID = this.id.slice(10);
-    let divNewTask = document.querySelector(`#divNewTask${cardID}`);
-    let btnCancelAddTask = document.querySelector(`#btnCancelAddTask${cardID}`);
-    let btnAddTask = document.querySelector(`#btnAddTask${cardID}`);
+    let cardID = getCardID(this.id);
+    let divNewTask = document.querySelector(`#${cardID}_divNewTask`);
+    let btnCancelAddTask = document.querySelector(`#${cardID}_btnCancelAddTask`);
+    let btnAddTask = document.querySelector(`#${cardID}_btnAddTask`);
 
     clickBtnCloseProp(cardID);
 
@@ -427,13 +425,12 @@ function clickBtnAddTask() {
 }
 
 function clickBtnCancelAddTask(inputID) {
-    let cardID;
-    cardID = checkInput(inputID, 16);
+    let cardID = checkInput(inputID);
     if (cardID == false) return; 
 
-    let divNewTask = document.querySelector(`#divNewTask${cardID}`);
-    let btnCancelAddTask = document.querySelector(`#btnCancelAddTask${cardID}`);
-    let btnAddTask = document.querySelector(`#btnAddTask${cardID}`);
+    let divNewTask = document.querySelector(`#${cardID}_divNewTask`);
+    let btnCancelAddTask = document.querySelector(`#${cardID}_btnCancelAddTask`);
+    let btnAddTask = document.querySelector(`#${cardID}_btnAddTask`);
 
     divNewTask.style['display'] = 'none';
     btnCancelAddTask.style['display'] = 'none';
@@ -444,11 +441,11 @@ function clickBtnCancelAddTask(inputID) {
 }
 
 function clickBtnSubmitNewTask() {
-    let cardID = this.id.slice(16);
-    let index = this.id.slice(19);
-    let inpName = document.querySelector(`#inpName${cardID}`);
-    let inpDesc = document.querySelector(`#inpDesc${cardID}`);
-    let inpDate = document.querySelector(`inpDate${cardID}`);
+    let cardID = getCardID(this.id);
+    let index = getProjIndex(cardID);
+    let inpName = document.querySelector(`#${cardID}_inpName`);
+    let inpDesc = document.querySelector(`#${cardID}_inpDesc`);
+    let inpDate = document.querySelector(`#${cardID}_inpDate`);
     let inpRB0 = document.getElementById(`${cardID}_inpRB0`);
     let inpRB1 = document.getElementById(`${cardID}_inpRB1`);
     let inpRB2 = document.getElementById(`${cardID}_inpRB2`);
@@ -480,11 +477,11 @@ function clickBtnSubmitNewTask() {
     let projObj = projectHandler.getProject(index);
     projObj.addTask(newName, newDesc, newDate, newPriority);
     
-    let pTaskCount = document.querySelector(`#pTaskCount${cardID}`);
+    let pTaskCount = document.querySelector(`#${cardID}_pTaskCount`);
     pTaskCount.textContent = `${projObj.getTaskCount()} tasks`;
 
     clickBtnCancelAddTask(cardID);
-    let btnExpand = document.querySelector(`#btnExpand${cardID}`);
+    let btnExpand = document.querySelector(`#${cardID}_btnExpand`);
     if (btnExpand.style['display'] == 'none') {
         clickBtnCollapse(cardID);
         clickBtnExpand(cardID);
