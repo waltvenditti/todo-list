@@ -9,7 +9,7 @@ export function makeProjectCards() {
     for (let i = 0; i < projCount; i++) {
         let projObj = projectHandler.getProject(i);
         let projName = projObj.getProjName();
-        let cardID = `pid${i}`;
+        let cardID = `pid_${i}`;
 
         //create HTML elements
         let divProj = document.createElement('div');
@@ -33,20 +33,20 @@ export function makeProjectCards() {
         //ids and other attributes 
         //ids
         divProj.setAttribute('id', cardID);
-        btnDelProj.setAttribute('id', `btnDelProj${cardID}`)
-        btnProperties.setAttribute('id', `btnProperties${cardID}`);
-        btnCloseProp.setAttribute('id', `btnCloseProp${cardID}`);
-        divProp.setAttribute('id', `divProp${cardID}`);
-        divProp2.setAttribute('id', `divProp2${cardID}`);
-        inputProjName.setAttribute('id', `inputProjName${cardID}`);
-        pProjTitle.setAttribute('id', `pProjTitle${cardID}`);
-        btnNewName.setAttribute('id', `btnNewName${cardID}`);
-        btnExpand.setAttribute('id', `btnExpand${cardID}`);
-        btnCollapse.setAttribute('id', `btnCollapse${cardID}`);
-        divNewTask.setAttribute('id', `divNewTask${cardID}`);
-        btnCancelAddTask.setAttribute('id', `btnCancelAddTask${cardID}`);
-        btnAddTask.setAttribute('id', `btnAddTask${cardID}`);
-        pTaskCount.setAttribute('id', `pTaskCount${cardID}`);
+        btnDelProj.setAttribute('id', `${cardID}_btnDelProj`)
+        btnProperties.setAttribute('id', `${cardID}_btnProperties`);
+        btnCloseProp.setAttribute('id', `${cardID}_btnCloseProp`);
+        divProp.setAttribute('id', `${cardID}_divProp`);
+        divProp2.setAttribute('id', `${cardID}_divProp2`);
+        inputProjName.setAttribute('id', `${cardID}_inputProjName`);
+        pProjTitle.setAttribute('id', `${cardID}_pProjTitle`);
+        btnNewName.setAttribute('id', `${cardID}_btnNewName`);
+        btnExpand.setAttribute('id', `${cardID}_btnExpand`);
+        btnCollapse.setAttribute('id', `${cardID}_btnCollapse`);
+        divNewTask.setAttribute('id', `${cardID}_divNewTask`);
+        btnCancelAddTask.setAttribute('id', `${cardID}_btnCancelAddTask`);
+        btnAddTask.setAttribute('id', `${cardID}_btnAddTask`);
+        pTaskCount.setAttribute('id', `${cardID}_pTaskCount`);
         //other attributes
         inputProjName.setAttribute('placeholder', `${projName}`);
 
@@ -115,30 +115,46 @@ export function clearProjectCards() {
     let projContainer = document.querySelector('.project-container-div');
     let projCount = document.querySelectorAll('.project-div');
     for (let i = 0; i < projCount.length; i++) {
-        let projCard = document.querySelector(`#pid${i}`);
+        let projCard = document.querySelector(`#pid_${i}`);
         projContainer.removeChild(projCard);
     }
 }
 
 //helper functions 
-function checkInput(input, cutoffVal) {
+function checkInput(input) {
     if (input == undefined) {
         return false;
     } else if ((typeof input) == 'object') {
-        return input.explicitOriginalTarget.id.slice(cutoffVal);
+        return getCardID(input.explicitOriginalTarget.id);
     } else if ((typeof input) == 'string') {
         return input;
     }
 }
 
+function getCardID(inputID) {
+    let arrayID = inputID.split('_');
+    let cardID = `${arrayID[0]}_${arrayID[1]}`;
+    return cardID;
+}
+
+function getProjIndex(cardID) {
+    let arrayID = cardID.split('_');
+    return arrayID[1];
+}
+
+function getTaskIndex(inputID) {
+    let arrayID = inputID.split('_');
+    return arrayID[2];
+}
 
 //button functions 
 function clickBtnProperties() {
-    let cardID = this.id.slice(13);
-    let btnProperties = document.querySelector(`#btnProperties${cardID}`);
-    let btnCloseProp = document.querySelector(`#btnCloseProp${cardID}`);
-    let divProp = document.querySelector(`#divProp${cardID}`);
-    let divProp2 = document.querySelector(`#divProp2${cardID}`);
+    let btnID = this.id;
+    let cardID = getCardID(btnID);
+    let btnProperties = document.querySelector(`#${cardID}_btnProperties`);
+    let btnCloseProp = document.querySelector(`#${cardID}_btnCloseProp`);
+    let divProp = document.querySelector(`#${cardID}_divProp`);
+    let divProp2 = document.querySelector(`#${cardID}_divProp2`);
 
     btnProperties.style['display'] = 'none';
     btnCloseProp.style['display'] = 'inline';
@@ -150,12 +166,12 @@ function clickBtnCloseProp(inputID) {
     let cardID = checkInput(inputID, 12); 
     if (cardID == false) return; 
 
-    let btnProperties = document.querySelector(`#btnProperties${cardID}`);
+    let btnProperties = document.querySelector(`#${cardID}_btnProperties`);
     if (btnProperties.style['display'] == 'inline') return;
-    let btnCloseProp = document.querySelector(`#btnCloseProp${cardID}`);
-    let divProp = document.querySelector(`#divProp${cardID}`);
-    let divProp2 = document.querySelector(`#divProp2${cardID}`);
-    let inputProjName = document.querySelector(`#inputProjName${cardID}`);
+    let btnCloseProp = document.querySelector(`#${cardID}_btnCloseProp`);
+    let divProp = document.querySelector(`#${cardID}_divProp`);
+    let divProp2 = document.querySelector(`#${cardID}_divProp2`);
+    let inputProjName = document.querySelector(`#${cardID}_inputProjName`);
 
     btnProperties.style['display'] = 'inline';
     btnCloseProp.style['display'] = 'none';
@@ -165,17 +181,18 @@ function clickBtnCloseProp(inputID) {
 }
 
 function clickBtnDelProj() {
-    let projectIndex = this.id.slice(13);
+    let cardID = getCardID(this.id);
+    let projectIndex = getProjIndex(cardID);
     clearProjectCards();
     projectHandler.removeProject(projectIndex);
     makeProjectCards();
 }
 
 function clickBtnNewName() {
-    let cardID = this.id.slice(10);
-    let index = this.id.slice(13);
-    let inputProjName = document.querySelector(`#inputProjName${cardID}`);
-    let pProjTitle = document.querySelector(`#pProjTitle${cardID}`);
+    let cardID = getCardID(this.id);
+    let index = getProjIndex(cardID);
+    let inputProjName = document.querySelector(`#${cardID}_inputProjName`);
+    let pProjTitle = document.querySelector(`#${cardID}_pProjTitle`);
     let newName = inputProjName.value;
 
     if (newName != '') {
@@ -188,17 +205,17 @@ function clickBtnNewName() {
 }
 
 function clickBtnExpand(inputID) {
-    let cardID = checkInput(inputID, 9);
+    let cardID = checkInput(inputID);
     if (cardID == false) return;
-    let index = cardID.slice(3);
+    let index = getProjIndex(cardID);
     let projObj = projectHandler.getProject(index);
     let taskCount = projObj.getTaskCount();
     let divProj = document.querySelector(`#${cardID}`);
-    let btnExpand = document.querySelector(`#btnExpand${cardID}`);
-    let btnCollapse = document.querySelector(`#btnCollapse${cardID}`);
+    let btnExpand = document.querySelector(`#${cardID}_btnExpand`);
+    let btnCollapse = document.querySelector(`#${cardID}_btnCollapse`);
 
     let divTask = document.createElement('div');
-    divTask.setAttribute('id', `divTask${cardID}`);
+    divTask.setAttribute('id', `${cardID}_divTask`);
     divProj.appendChild(divTask);
 
     for (let j = 0; j < taskCount; j++) {
@@ -216,8 +233,8 @@ function clickBtnExpand(inputID) {
 
         //classes and id assigment
         divMainIndTask.setAttribute('id', `${cardID}_${j}_${taskTitle}`);
-        btnTaskExpand.setAttribute('id', `btnTaskExpand_${cardID}_${j}_${taskTitle}`);
-        btnDone.setAttribute('id', `btnDone_${cardID}_${j}_${taskTitle}`);
+        btnTaskExpand.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnTaskExpand`);
+        btnDone.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnDone`);
 
         divMainIndTask.classList.add('new-task-div');
         divTaskInd.classList.add('indiv-task-div');
@@ -263,16 +280,15 @@ function clickBtnExpand(inputID) {
 
 function clickBtnTaskExpand() {
     let btnID = this.id;
-    let divID = btnID.slice(14);
-    console.log(btnID);
-    console.log(divID);
-    console.log(divID[3]);
-    console.log(divID[5]);
-    let projObj = projectHandler.getProject(divID[3]);
-    let taskDesc = projObj.getTaskDesc(divID[11]);
+    let cardID = getCardID(btnID);
+    let index = getProjIndex(cardID);
+    let taskIndex = getTaskIndex(btnID);
+    let projObj = projectHandler.getProject(index);
+    let taskDesc = projObj.getTaskDesc(taskIndex);
+    let taskTitle = projObj.getTaskTitle(taskIndex);
     if (taskDesc == undefined) taskDesc = '';
 
-    let divTaskInd = document.querySelector(`#${divID}`);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}`);
 
     let divButtons = document.createElement('div');
     let pDesc = document.createElement('p');
@@ -284,8 +300,8 @@ function clickBtnTaskExpand() {
     btnDelTask.textContent = 'Delete Task';
 
     divButtons.classList.add('project-card-space-btwn');
-    btnEditTask.setAttribute('id', `btnEditTask_${divID}`);
-    btnDelTask.setAttribute('id', `btnDelTask_${divID}`);
+    btnEditTask.setAttribute('id', `${cardID}_btnEditTask`);
+    btnDelTask.setAttribute('id', `${cardID}_btnDelTask`);
 
     divTaskInd.appendChild(pDesc);
     divTaskInd.appendChild(divButtons);
@@ -293,6 +309,8 @@ function clickBtnTaskExpand() {
     divButtons.appendChild(btnDelTask);
 }
 
+//resume here
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function clickBtnCollapse(inputID) {
     let cardID = checkInput(inputID, 11);
     let taskDiv = document.querySelector(`#divTask${cardID}`);
@@ -338,14 +356,14 @@ function clickBtnAddTask() {
     let labelRB3 = document.createElement('label');
     let btnSubmitNewTask = document.createElement('button');
 
-    btnSubmitNewTask.setAttribute('id', `btnSubmitNewTask${cardID}`);
-    inpName.setAttribute('id', `inpName${cardID}`);
-    inpDesc.setAttribute('id', `inpDesc${cardID}`);
-    inpDate.setAttribute('id', `inpDate${cardID}`);
-    inpRB0.setAttribute('id', `#inpRB0${cardID}`);
-    inpRB1.setAttribute('id', `#inpRB1${cardID}`);
-    inpRB2.setAttribute('id', `#inpRB2${cardID}`);
-    inpRB3.setAttribute('id', `#inpRB3${cardID}`);
+    btnSubmitNewTask.setAttribute('id', `${cardID}_btnSubmitNewTask`);
+    inpName.setAttribute('id', `${cardID}_inpName`);
+    inpDesc.setAttribute('id', `${cardID}_inpDesc`);
+    inpDate.setAttribute('id', `${cardID}_inpDate`);
+    inpRB0.setAttribute('id', `${cardID}_inpRB0`);
+    inpRB1.setAttribute('id', `${cardID}_inpRB1`);
+    inpRB2.setAttribute('id', `${cardID}_inpRB2`);
+    inpRB3.setAttribute('id', `${cardID}_inpRB3`);
 
     pName.textContent = 'Name:';
     pDesc.textContent = 'Desc:';
@@ -430,11 +448,11 @@ function clickBtnSubmitNewTask() {
     let index = this.id.slice(19);
     let inpName = document.querySelector(`#inpName${cardID}`);
     let inpDesc = document.querySelector(`#inpDesc${cardID}`);
-    let inpDate = document.querySelector(`#inpDate${cardID}`);
-    let inpRB0 = document.getElementById(`#inpRB0${cardID}`);
-    let inpRB1 = document.getElementById(`#inpRB1${cardID}`);
-    let inpRB2 = document.getElementById(`#inpRB2${cardID}`);
-    let inpRB3 = document.getElementById(`#inpRB3${cardID}`);
+    let inpDate = document.querySelector(`inpDate${cardID}`);
+    let inpRB0 = document.getElementById(`${cardID}_inpRB0`);
+    let inpRB1 = document.getElementById(`${cardID}_inpRB1`);
+    let inpRB2 = document.getElementById(`${cardID}_inpRB2`);
+    let inpRB3 = document.getElementById(`${cardID}_inpRB3`);
 
     let newName = inpName.value;
     let newDesc = inpDesc.value;
