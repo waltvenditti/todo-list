@@ -38,9 +38,11 @@ projectHandler.createNewProject('Project 1');
 projectHandler.createNewProject('Project 2');
 projectHandler.createNewProject('Project 3');
 let project1 = projectHandler.getProject(0);
+let project2 = projectHandler.getProject(1);
 let date1 = new Date(2021, 11, 12);
 project1.addTask('Task1', 'Desc1', date1, 1);
 project1.addTask('Task2', 'Take care of the task. Take care of the task. Take care of the task.', null, 2);
+project2.addTask('Task1', 'task1task1', null, 0);
 
 //let rawDate = '2/8/91';
 //let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());

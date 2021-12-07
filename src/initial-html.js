@@ -12,20 +12,16 @@ const divHeaderBtns = document.createElement('div');
 const divNewProj = document.createElement('div');
 const divnewProjBtns = document.createElement('div');
 const divNewTask = document.createElement('div');
-//const divNewTaskBtns = document.createElement('div');
 const divAutoLists = document.createElement('div');
 const divTodoToday = document.createElement('div');
 const divTodoWeek = document.createElement('div');
 const divProjectList = document.createElement('div');
 
 const btnNewProj = document.createElement('button');
-const btnNewTask = document.createElement('button');
 const btnNewProjCancel = document.createElement('button');
 const btnNewProjAccept = document.createElement('button');
 const btnTodoTodayExp = document.createElement('button');
 const btnTodoWeekExp = document.createElement('button');
-//const btnNewTaskCancel = document.createElement('button');
-//const btnNewTaskAccept = document.createElement('button');
 
 const newProjNameField = document.createElement('input');
 
@@ -39,7 +35,6 @@ const h2ProjDivTitle = document.createElement('h2');
 //add text content to header DOM elements
 h1.textContent = 'TODO LIST';
 btnNewProj.textContent = 'New Project';
-btnNewTask.textContent = 'New Task';
 divNewTask.textContent = 'New Task';
 btnNewProjAccept.textContent = 'Accept';
 btnNewProjCancel.textContent = 'Cancel';
@@ -70,18 +65,8 @@ btnNewProjAccept.setAttribute('id', 'new-proj-accept');
 //------------------
 body.appendChild(header);
 header.appendChild(h1);
-header.appendChild(divHeaderBtns);
-divHeaderBtns.appendChild(btnNewProj);
-divHeaderBtns.appendChild(btnNewTask);
 
 //header.appendChild(divNewTask);
-
-header.appendChild(divNewProj);
-divNewProj.appendChild(newProjNameField);
-divNewProj.appendChild(divnewProjBtns);
-divnewProjBtns.appendChild(btnNewProjAccept);
-divnewProjBtns.appendChild(btnNewProjCancel);
-
 body.appendChild(h2AutoListTitle);
 body.appendChild(divAutoLists);
 divAutoLists.appendChild(divTodoToday);
@@ -94,28 +79,45 @@ divTodoWeek.appendChild(pTodoWeekCount);
 divTodoWeek.appendChild(btnTodoWeekExp);
 
 body.appendChild(h2ProjDivTitle);
-body.appendChild(divProjectList);
+h2ProjDivTitle.appendChild(divHeaderBtns);
+divHeaderBtns.appendChild(btnNewProj);
 
+
+h2ProjDivTitle.appendChild(divNewProj);
+divNewProj.appendChild(newProjNameField);
+divNewProj.appendChild(divnewProjBtns);
+divnewProjBtns.appendChild(btnNewProjAccept);
+divnewProjBtns.appendChild(btnNewProjCancel);
+
+body.appendChild(divProjectList);
 
 //button listeners
 btnNewProj.addEventListener('click', () => {
     divNewProj.style['display'] = 'flex';
-    //if (divNewTask.style['display'] != 'none') {
-        //divNewTask.style['display'] = 'none';
-        //clear data fields in divNewTask
-    //}
 });
 
 btnNewProjCancel.addEventListener('click', () => {
     newProjNameField.value = '';
+    newProjNameField.setAttribute('placeholder', 'Enter new project name');
+    newProjNameField.style['color'] = 'black';
     divNewProj.style['display'] = 'none';
 });
 
 btnNewProjAccept.addEventListener('click', () => {
     let title = newProjNameField.value;
-    if (title == '') return;
+    if (title == '') {
+        newProjNameField.setAttribute('placeholder', 'Name Required');
+        newProjNameField.style['color'] = 'red';
+        newProjNameField.addEventListener('click', () => {
+            newProjNameField.style['color'] = 'black';
+            newProjNameField.setAttribute('placeholder', 'Enter new project name');
+        })
+        return;
+    }
     projectHandler.createNewProject(title);
     newProjNameField.value = '';
+    newProjNameField.style['color'] = 'black';
+    newProjNameField.setAttribute('placeholder', 'Enter new project name');
     divNewProj.style['display'] = 'none';
     clearProjectCards();
     makeProjectCards();
@@ -123,21 +125,96 @@ btnNewProjAccept.addEventListener('click', () => {
 });
 
 btnTodoTodayExp.addEventListener('click', () => {
-    //add new div elements
-    //change class to expanded
-    //hide expand  button and add collapse button
+    let todaysDate = new Date();
+    let projCount = projectHandler.getProjectCount();
+    let divTaskToday = document.createElement('div');
+
+    divTodoToday.appendChild(divTaskToday);
+    
+
+    btnDelDoneTasks.textContent = 'Delete Completed Tasks';
+    btnDelDoneTasks.setAttribute('id', `${cardID}_btnDelDoneTasks`);
+    btnDelDoneTasks.addEventListener('click', clickBtnDelDoneTasks);
+
+    for (let j = 0; j < taskCount; j++) {
+        //DOM elements
+        let divMainIndTask = document.createElement('div');
+        let divTaskInd = document.createElement('div');
+        let divBtnTitle = document.createElement('div');
+        let divBtnExp = document.createElement('div');
+        let btnDone = document.createElement('button');
+        let pTaskTitle = document.createElement('p');
+        let pDueDate = document.createElement('p');
+        let pPriority = document.createElement('p');
+        let btnTaskExpand = document.createElement('button');
+        let btnTaskCollapse = document.createElement('button');
+        let taskTitle = projObj.getTaskTitle(j);
+
+        //classes, attributes, and id assigments
+        divMainIndTask.setAttribute('id', `${cardID}_${j}`);
+        btnTaskExpand.setAttribute('id', `${cardID}_${j}_btnTaskExpand`);
+        btnTaskCollapse.setAttribute('id', `${cardID}_${j}_btnTaskCollapse`);
+        btnDone.setAttribute('id', `${cardID}_${j}_btnDone`);
+
+        btnTaskCollapse.style['display'] = 'none';
+
+        divMainIndTask.classList.add('new-task-div');
+        divTaskInd.classList.add('indiv-task-div');
+        btnDone.classList.add('check-button');
+        divBtnTitle.classList.add('indiv-task-btn-and-title-div');
+        divBtnExp.classList.add('indiv-task-exp-btn');
+
+        //button click events
+        btnTaskExpand.addEventListener('click', clickBtnTaskExpand);
+        btnTaskCollapse.addEventListener('click', clickBtnTaskCollapse);
+        btnDone.addEventListener('click', clickBtnDone);
+
+        //text content 
+        pTaskTitle.textContent = taskTitle;
+        let taskDate = projObj.getTaskDueDate(j);
+        if (taskDate != null) {
+            let date = format(projObj.getTaskDueDate(j), 'MM/dd/yy');
+            pDueDate.textContent = date;
+        } else {
+            pDueDate.textContent = '. . . . . . . .';
+        }
+        let rawPriority = projObj.getTaskPriority(j)
+        let taskPriority;
+        if (rawPriority == 0) taskPriority = 'none';
+        if (rawPriority == 3) taskPriority = 'Low';
+        if (rawPriority == 2) taskPriority = 'Medium';
+        if (rawPriority == 1) taskPriority = 'High';
+        pPriority.textContent = taskPriority;
+        btnTaskExpand.textContent = 'Expand';
+        btnTaskCollapse.textContent = 'Collapse';
+        
+        //construct DOM 
+        divTask.appendChild(divMainIndTask);
+        divMainIndTask.appendChild(divTaskInd);
+        divTaskInd.appendChild(divBtnTitle);
+        divBtnTitle.appendChild(btnDone);
+        divBtnTitle.appendChild(pTaskTitle);
+        divTaskInd.appendChild(pDueDate);
+        divTaskInd.appendChild(divBtnExp);
+        divBtnExp.appendChild(pPriority);
+        divBtnExp.appendChild(btnTaskExpand);
+        divBtnExp.appendChild(btnTaskCollapse);
+    };
+    divTask.appendChild(btnDelDoneTasks);
+    btnExpand.style['display'] = 'none';
+    btnCollapse.style['display'] = 'inline';
+
+
+
+
+
+
+
+    //create list of tasks like in project cards
+        //no duedate needed since they're all due today
+    //delcomp'dtasks button removes from list, updates poject cards (just have it delete and remake project cards)
 });
 
 btnTodoWeekExp.addEventListener('click', () => {
 
 });
-
-/*
-btnNewTask.addEventListener('click', () => {
-    divNewTask.style['display'] = 'flex';
-    if (divNewProj.style['display'] != 'none') {
-        divNewProj.style['display'] = 'none';
-        //clear data fields in divNewProject
-    }
-})
-*/

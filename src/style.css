@@ -44,11 +44,17 @@ p {
     flex-direction: column;
 }
 
-.project-div,
-.project-div-auto {
+.project-div{
     margin-top: 16px;
     width: 400px;
     min-height: 80px;
+    height: 100%;
+    padding: 4px;
+}
+
+.project-div-auto {
+    margin-top: 16px;
+    width: 400px;
     height: 100%;
     padding: 4px;
 }

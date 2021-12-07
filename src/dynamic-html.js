@@ -9,6 +9,7 @@ export function makeProjectCards() {
     for (let i = 0; i < projCount; i++) {
         let projObj = projectHandler.getProject(i);
         let projName = projObj.getProjName();
+        let taskCount = projObj.getTaskCount(i);
         let cardID = `pid_${i}`;
 
 
@@ -69,7 +70,11 @@ export function makeProjectCards() {
 
         //text content
         pProjTitle.textContent = projName;
-        pTaskCount.textContent = `${projObj.getTaskCount()} tasks`;
+        if (taskCount == 1) {
+            pTaskCount.textContent = `${taskCount} task`;
+        } else {
+            pTaskCount.textContent = `${taskCount} tasks`;
+        }
         btnProperties.textContent = 'Properties';
         btnAddTask.textContent = 'New Task';
         btnExpand.textContent = 'Expand Tasks';
@@ -122,6 +127,8 @@ export function clearProjectCards() {
 }
 
 //helper functions 
+//----------------
+//----------------
 function checkInput(input) {
     if (input == undefined) {
         return false;
@@ -170,19 +177,20 @@ function changeTaskAppearance(projIndex, taskIndex) {
     };
 }
 
-function removeSpacesFromTitle(title) {
-    if (title.includes(' ')) {
-        let titleArray = title.split(' ');
-        let newTitle = '';
-        for (let i = 0; i < titleArray.length; i++) {
-            if (i != 0) newTitle += '-';
-            newTitle += `${titleArray[i]}`;
-        }
-        return newTitle;
+function updateProjCardTaskCount(cardID) {
+    let projObj = projectHandler.getProject(getProjIndex(cardID));
+    let pTaskCount = document.querySelector(`#${cardID}_pTaskCount`);
+    let taskCount = projObj.getTaskCount();
+    if (taskCount != 1) {
+        pTaskCount.textContent = `${taskCount} tasks`;
+    } else {
+        pTaskCount.textContent = `${taskCount} task`;
     }
 }
 
 //button functions 
+//----------------
+//----------------
 function clickBtnProperties() {
     let btnID = this.id;
     let cardID = getCardID(btnID);
@@ -251,9 +259,13 @@ function clickBtnExpand(inputID) {
     let btnExpand = document.querySelector(`#${cardID}_btnExpand`);
     let btnCollapse = document.querySelector(`#${cardID}_btnCollapse`);
 
+    let btnDelDoneTasks = document.createElement('button');
     let divTask = document.createElement('div');
     divTask.setAttribute('id', `${cardID}_divTask`);
     divProj.appendChild(divTask);
+    btnDelDoneTasks.textContent = 'Delete Completed Tasks';
+    btnDelDoneTasks.setAttribute('id', `${cardID}_btnDelDoneTasks`);
+    btnDelDoneTasks.addEventListener('click', clickBtnDelDoneTasks);
 
     for (let j = 0; j < taskCount; j++) {
         //DOM elements
@@ -319,8 +331,25 @@ function clickBtnExpand(inputID) {
         divBtnExp.appendChild(btnTaskExpand);
         divBtnExp.appendChild(btnTaskCollapse);
     };
+    divTask.appendChild(btnDelDoneTasks);
     btnExpand.style['display'] = 'none';
     btnCollapse.style['display'] = 'inline';
+}
+
+function clickBtnDelDoneTasks() {
+    let cardID = getCardID(this.id);
+    let projIndex = getProjIndex(cardID);
+    let projObj = projectHandler.getProject(projIndex);
+
+    for (let i = 0; i < projObj.getTaskCount(); i++) {
+        if (projObj.getTaskDoneStatus(i) == true) {
+            projObj.removeTask(i);
+            i--;
+        }
+    }
+    clickBtnCollapse(cardID);
+    clickBtnExpand(cardID);
+    updateProjCardTaskCount(cardID);
 }
 
 function clickBtnDone() {
@@ -563,6 +592,7 @@ function clickBtnDelTask() {
     let taskIndex = getTaskIndex(this.id);
     let projObj = projectHandler.getProject(getProjIndex(cardID));
     projObj.removeTask(taskIndex);
+    updateProjCardTaskCount(cardID)
     clickBtnCollapse(cardID);
     clickBtnExpand(cardID);
 }
@@ -758,4 +788,5 @@ function clickBtnSubmitNewTask() {
         clickBtnCollapse(cardID);
         clickBtnExpand(cardID);
     };
+    updateProjCardTaskCount(cardID);
 }
