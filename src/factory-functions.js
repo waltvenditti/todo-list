@@ -11,7 +11,8 @@ export const taskFactory = function(initTitle, initDesc, initDueDate, initPriori
         let titleArray = title.split('_');
         let newTitle = '';
         for (let i = 0; i < titleArray.length; i++) {
-            newTitle += `${titleArray[i]} `;
+            if (i != 0) newTitle += ' ';
+            newTitle += `${titleArray[i]}`;
         }
         title = newTitle;
     }
@@ -37,7 +38,14 @@ export const taskFactory = function(initTitle, initDesc, initDueDate, initPriori
     }
     
     const changeTitle = function(newTitle) {
-        title = newTitle;
+       if (newTitle.includes('_')) {
+            let titleArray = newTitle.split('_');
+            let newTitle2 = '';
+            for (let i = 0; i < titleArray.length; i++) {
+                newTitle2 += `${titleArray[i]} `;
+            }
+            title = newTitle2;
+        } else title = newTitle;
     } 
 
     const changeDesc = function(newDesc) {

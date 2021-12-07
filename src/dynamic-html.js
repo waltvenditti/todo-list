@@ -11,6 +11,7 @@ export function makeProjectCards() {
         let projName = projObj.getProjName();
         let cardID = `pid_${i}`;
 
+
         //create HTML elements
         let divProj = document.createElement('div');
         let divHeader = document.createElement('div');
@@ -147,14 +148,38 @@ function getTaskIndex(inputID) {
     return arrayID[2];
 }
 
-function extractTastTitle(inputID) {
-    let arrayID = inputID.split('_');
-    return arrayID[3];
-}
-
 function getDoneStatus(projIndex, taskIndex) {
     let projObj = projectHandler.getProject(projIndex);
     return projObj.getTaskDoneStatus(taskIndex);
+}
+
+function changeTaskAppearance(projIndex, taskIndex) {
+    let projObj = projectHandler.getProject(projIndex);
+    let taskDoneStatus = projObj.getTaskDoneStatus(taskIndex);
+    let divNewTask = document.querySelector(`#pid_${projIndex}_${taskIndex}`);
+    let pElements = divNewTask.querySelectorAll('p');
+
+    if (taskDoneStatus == true) {
+        for (let i = 0; i < pElements.length; i++) {
+            pElements[i].style['color'] = 'grey'
+        }
+    } else {
+        for (let i = 0; i < pElements.length; i++) {
+            pElements[i].style['color'] = 'black';
+        };
+    };
+}
+
+function removeSpacesFromTitle(title) {
+    if (title.includes(' ')) {
+        let titleArray = title.split(' ');
+        let newTitle = '';
+        for (let i = 0; i < titleArray.length; i++) {
+            if (i != 0) newTitle += '-';
+            newTitle += `${titleArray[i]}`;
+        }
+        return newTitle;
+    }
 }
 
 //button functions 
@@ -210,10 +235,12 @@ function clickBtnNewName() {
         projObj.changeProjName(newName);
         pProjTitle.textContent = newName;
         inputProjName.value = '';
-        clickBtnCloseProp();
+        inputProjName.setAttribute('placeholder', `${projectHandler.getProject(index).getProjName()}`);
+        clickBtnCloseProp(cardID);
     }
 }
 
+//this expands the entire list of tasks
 function clickBtnExpand(inputID) {
     let cardID = checkInput(inputID);
     if (cardID == false) return;
@@ -243,10 +270,10 @@ function clickBtnExpand(inputID) {
         let taskTitle = projObj.getTaskTitle(j);
 
         //classes, attributes, and id assigments
-        divMainIndTask.setAttribute('id', `${cardID}_${j}_${taskTitle}`);
-        btnTaskExpand.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnTaskExpand`);
-        btnTaskCollapse.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnTaskCollapse`);
-        btnDone.setAttribute('id', `${cardID}_${j}_${taskTitle}_btnDone`);
+        divMainIndTask.setAttribute('id', `${cardID}_${j}`);
+        btnTaskExpand.setAttribute('id', `${cardID}_${j}_btnTaskExpand`);
+        btnTaskCollapse.setAttribute('id', `${cardID}_${j}_btnTaskCollapse`);
+        btnDone.setAttribute('id', `${cardID}_${j}_btnDone`);
 
         btnTaskCollapse.style['display'] = 'none';
 
@@ -304,19 +331,16 @@ function clickBtnDone() {
     projObj.changeTaskDoneStatus(taskIndex); 
     
     let doneStatus = getDoneStatus(projIndex, taskIndex);
-    console.log(doneStatus);
     if (doneStatus == false) {
-        this.style['background-color'] = 'aliceblue';
+        this.style['background-color'] = 'lightgrey';
     } else {
-        this.style['background-color'] = 'seashell';
+        this.style['background-color'] = 'dimgrey';
     };
     
-    //write a separate color control function 
-        //checks done status on task
-        //applies appropriate colors to task text 
-        //this function will be used by expand tasks
+    changeTaskAppearance(projIndex, taskIndex);
 }
 
+//this expands the individual task 
 function clickBtnTaskExpand() {
     let btnID = this.id;
     let cardID = getCardID(btnID);
@@ -324,59 +348,239 @@ function clickBtnTaskExpand() {
     let taskIndex = getTaskIndex(btnID);
     let projObj = projectHandler.getProject(index);
     let taskDesc = projObj.getTaskDesc(taskIndex);
-    let taskTitle = projObj.getTaskTitle(taskIndex);
     if (taskDesc == undefined) taskDesc = '';
 
-    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}`);
-    let btnTaskCollapse = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}_btnTaskCollapse`);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}`);
+    let btnTaskCollapse = document.querySelector(`#${cardID}_${taskIndex}_btnTaskCollapse`);
 
     let divTaskIndNew = document.createElement('div');
     let divButtons = document.createElement('div');
     let pDesc = document.createElement('p');
     let btnEditTask = document.createElement('button');
+    let btnCancelEditTask = document.createElement('button');
     let btnDelTask = document.createElement('button');
 
     pDesc.textContent = `Desc: ${taskDesc}`; 
     btnEditTask.textContent = 'Edit Task';
     btnDelTask.textContent = 'Delete Task';
+    btnCancelEditTask.textContent = 'Cancel Edit Task';
 
     divButtons.classList.add('project-card-space-btwn');
-
-    btnEditTask.setAttribute('id', `${cardID}_btnEditTask`);
-    btnDelTask.setAttribute('id', `${cardID}_btnDelTask`);
-    divTaskIndNew.setAttribute('id', `${cardID}_${taskIndex}_${taskTitle}_divTaskIndNew`);
+    btnEditTask.setAttribute('id', `${cardID}_${taskIndex}_btnEditTask`);
+    btnCancelEditTask.setAttribute('id', `${cardID}_${taskIndex}_btnCancelEditTask`);
+    btnDelTask.setAttribute('id', `${cardID}_${taskIndex}_btnDelTask`);
+    divTaskIndNew.setAttribute('id', `${cardID}_${taskIndex}_divTaskIndNew`);
+    btnCancelEditTask.style['display'] = 'none';
 
     divTaskInd.appendChild(divTaskIndNew);
     divTaskIndNew.appendChild(pDesc);
     divTaskIndNew.appendChild(divButtons);
     divButtons.appendChild(btnEditTask);
+    divButtons.appendChild(btnCancelEditTask);
     divButtons.appendChild(btnDelTask);
+
+    btnDelTask.addEventListener('click', clickBtnDelTask);
+    btnEditTask.addEventListener('click', clickBtnEditTask);
+    btnCancelEditTask.addEventListener('click', clickBtnCancelEditTask);
 
     this.style['display'] = 'none';
     btnTaskCollapse.style['display'] = 'inline';
 }
 
-function clickButtonEditTask() {
+function clickBtnEditTask() {
+    let cardID = getCardID(this.id);
+    let taskIndex = getTaskIndex(this.id);
+    let taskTitle = projectHandler.getProject(getProjIndex(cardID)).getTaskTitle(taskIndex);
+    let projObj = projectHandler.getProject(getProjIndex(cardID));
+    let btnCancelEditTask = document.querySelector(`#${cardID}_${taskIndex}_btnCancelEditTask`);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}`);
+    let divEditTask = document.createElement('div');
+    let taskPriority = projObj.getTaskPriority(taskIndex);
 
+    this.style['display'] = 'none';
+    btnCancelEditTask.style['display'] = 'inline';
+
+    let divFormat1 = document.createElement('div');
+    let divFormat2 = document.createElement('div');
+    let divFormat3 = document.createElement('div');
+    let divFormat4 = document.createElement('div');
+    let pEditName = document.createElement('p');
+    let pEditDesc = document.createElement('p');
+    let pEditDate = document.createElement('p');
+    let pEditPri = document.createElement('p');
+    let inpEditName = document.createElement('input');
+    let inpEditDesc = document.createElement('input');
+    let inpEditDate = document.createElement('input');
+    let inpEditRB0 = document.createElement('input');
+    let inpEditRB1 = document.createElement('input');
+    let inpEditRB2 = document.createElement('input');
+    let inpEditRB3 = document.createElement('input');
+    let labelEditRB0 = document.createElement('label');
+    let labelEditRB1 = document.createElement('label');
+    let labelEditRB2 = document.createElement('label');
+    let labelEditRB3 = document.createElement('label');
+    let btnSubmitEdits = document.createElement('button');
+
+    divEditTask.setAttribute('id', `${cardID}_${taskIndex}_divEditTask`);
+    btnSubmitEdits.setAttribute('id', `${cardID}_${taskIndex}_btnSubmitEdits`);
+    inpEditName.setAttribute('id', `${cardID}_inpEditName`);
+    inpEditDesc.setAttribute('id', `${cardID}_inpEditDesc`);
+    inpEditDate.setAttribute('id', `${cardID}_inpEditDate`);
+    inpEditRB0.setAttribute('id', `${cardID}_inpEditRB0`);
+    inpEditRB1.setAttribute('id', `${cardID}_inpEditRB1`);
+    inpEditRB2.setAttribute('id', `${cardID}_inpEditRB2`);
+    inpEditRB3.setAttribute('id', `${cardID}_inpEditRB3`);
+
+    pEditName.textContent = 'Name:';
+    pEditDesc.textContent = 'Desc:';
+    pEditDate.textContent = 'Date Due:';
+    pEditPri.textContent = 'Priority:';
+    labelEditRB0.textContent = 'None';
+    labelEditRB1.textContent = 'High';
+    labelEditRB2.textContent = 'Medium';
+    labelEditRB3.textContent = 'Low';
+    btnSubmitEdits.textContent = 'Submit Edits';
+
+    divFormat1.style['display'] = 'flex';
+    divFormat2.style['display'] = 'flex';
+    divFormat3.style['display'] = 'flex';
+    divFormat4.style['display'] = 'flex';
+    inpEditName.value = `${taskTitle}`;
+    inpEditDesc.value = `${projObj.getTaskDesc(taskIndex)}`;
+    inpEditDate.setAttribute('type', 'date');
+    inpEditDate.valueAsDate = projObj.getTaskDueDate(taskIndex);
+
+    if (taskPriority == 0) inpEditRB0.checked = 'true';
+    if (taskPriority == 1) inpEditRB1.checked = 'true';
+    if (taskPriority == 2) inpEditRB2.checked = 'true';
+    if (taskPriority == 3) inpEditRB3.checked = 'true';
+    inpEditRB0.setAttribute('type', 'radio');
+    inpEditRB0.setAttribute('name', 'ePrty');
+    inpEditRB0.setAttribute('value', 0);
+    inpEditRB1.setAttribute('type', 'radio');
+    inpEditRB1.setAttribute('name', 'ePrty');
+    inpEditRB1.setAttribute('value', 1);
+    inpEditRB2.setAttribute('type', 'radio');
+    inpEditRB2.setAttribute('name', 'ePrty');
+    inpEditRB2.setAttribute('value', 2);
+    inpEditRB3.setAttribute('type', 'radio');
+    inpEditRB3.setAttribute('name', 'ePrty');
+    inpEditRB3.setAttribute('value', 3);
+
+    labelEditRB0.setAttribute('for', 'inpEditRB0');
+    labelEditRB1.setAttribute('for', 'inpEditRB1');
+    labelEditRB2.setAttribute('for', 'inpEditRB2');
+    labelEditRB3.setAttribute('for', 'inpEditRB3');
+
+    divEditTask.classList.add('new-task-div');
+    btnSubmitEdits.style['align-self'] = 'flex-start';
+
+    btnSubmitEdits.addEventListener('click', clickBtnSubmitEdits);
+
+    divTaskInd.appendChild(divEditTask);
+    divEditTask.appendChild(divFormat1);
+    divFormat1.appendChild(pEditName);
+    divFormat1.appendChild(inpEditName);
+    divEditTask.appendChild(divFormat2);
+    divFormat2.appendChild(pEditDesc);
+    divFormat2.appendChild(inpEditDesc);
+    divEditTask.appendChild(divFormat3);
+    divFormat3.appendChild(pEditDate);
+    divFormat3.appendChild(inpEditDate);
+    divEditTask.appendChild(divFormat4);
+    divFormat4.appendChild(pEditPri);
+    divFormat4.appendChild(inpEditRB0);
+    divFormat4.appendChild(labelEditRB0);
+    divFormat4.appendChild(inpEditRB3);
+    divFormat4.appendChild(labelEditRB3);
+    divFormat4.appendChild(inpEditRB2);
+    divFormat4.appendChild(labelEditRB2);
+    divFormat4.appendChild(inpEditRB1);
+    divFormat4.appendChild(labelEditRB1);
+    divEditTask.appendChild(btnSubmitEdits);
 }
 
-function clickButtonDelTask() {
+function clickBtnCancelEditTask() {
+    let cardID = getCardID(this.id);
+    let taskIndex = getTaskIndex(this.id);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}`);
+    let divEditTask = document.querySelector(`#${cardID}_${taskIndex}_divEditTask`);
+    let btnEditTask = document.querySelector(`#${cardID}_${taskIndex}_btnEditTask`);
 
+    divTaskInd.removeChild(divEditTask);
+    this.style['display'] = 'none';
+    btnEditTask.style['display'] = 'inline';
 }
 
+function clickBtnSubmitEdits() {
+    let cardID = getCardID(this.id);
+    let taskIndex = getTaskIndex(this.id);
+    let projIndex = getProjIndex(cardID);
+    let projObj = projectHandler.getProject(projIndex);
+
+    let inpEditName = document.querySelector(`#${cardID}_inpEditName`);
+    let inpEditDesc = document.querySelector(`#${cardID}_inpEditDesc`);
+    let inpEditDate = document.querySelector(`#${cardID}_inpEditDate`);
+    let inpEditRB0 = document.getElementById(`${cardID}_inpEditRB0`);
+    let inpEditRB1 = document.getElementById(`${cardID}_inpEditRB1`);
+    let inpEditRB2 = document.getElementById(`${cardID}_inpEditRB2`);
+    let inpEditRB3 = document.getElementById(`${cardID}_inpEditRB3`);
+
+    let newName = inpEditName.value;
+    let newDesc = inpEditDesc.value;
+    let newDate = inpEditDate.value;
+    let newPriority; 
+
+    if (newName == '') {
+        inpEditName.style['color'] = 'red';
+        inpEditName.setAttribute('placeholder', 'NAME REQUIRED');
+        inpEditName.addEventListener('click', () => {
+            inpEditName.setAttribute('placeholder', 'Task Name');
+            inpEditName.style['color'] = 'black';
+        });
+        return;
+    };
+    
+    if (newDate == '') newDate = null;
+    else newDate = parse(newDate, 'yyyy-MM-dd', new Date());
+
+    if (inpEditRB0.checked == true) newPriority = 0;
+    if (inpEditRB1.checked == true) newPriority = 1;
+    if (inpEditRB2.checked == true) newPriority = 2;
+    if (inpEditRB3.checked == true) newPriority = 3;
+
+    projObj.changeTaskTitle(taskIndex, newName);
+    projObj.changeTaskDesc(taskIndex, newDesc);
+    projObj.changeTaskDueDate(taskIndex, newDate);
+    projObj.changeTaskPriority(taskIndex, newPriority);
+
+    clickBtnCollapse(cardID);
+    clickBtnExpand(cardID);
+}
+
+function clickBtnDelTask() {
+    let cardID = getCardID(this.id);
+    let taskIndex = getTaskIndex(this.id);
+    let projObj = projectHandler.getProject(getProjIndex(cardID));
+    projObj.removeTask(taskIndex);
+    clickBtnCollapse(cardID);
+    clickBtnExpand(cardID);
+}
+
+//this collapses and individual task 
 function clickBtnTaskCollapse() {
     let cardID = getCardID(this.id);
     let taskIndex = getTaskIndex(this.id);
-    let taskTitle = extractTastTitle(this.id);
-    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}`);
-    let divTaskIndNew = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}_divTaskIndNew`);
-    let btnTaskExpand = document.querySelector(`#${cardID}_${taskIndex}_${taskTitle}_btnTaskExpand`);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}`);
+    let divTaskIndNew = document.querySelector(`#${cardID}_${taskIndex}_divTaskIndNew`);
+    let btnTaskExpand = document.querySelector(`#${cardID}_${taskIndex}_btnTaskExpand`);
 
     divTaskInd.removeChild(divTaskIndNew);
     this.style['display'] = 'none';
     btnTaskExpand.style['display'] = 'inline';
 }
 
+//this collapses the list of all tasks for a project
 function clickBtnCollapse(inputID) {
     let cardID = checkInput(inputID);
     let taskDiv = document.querySelector(`#${cardID}_divTask`);

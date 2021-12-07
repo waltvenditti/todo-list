@@ -38,7 +38,7 @@ projectHandler.createNewProject('Project 1');
 projectHandler.createNewProject('Project 2');
 projectHandler.createNewProject('Project 3');
 let project1 = projectHandler.getProject(0);
-let date1 = new Date();
+let date1 = new Date(2021, 11, 12);
 project1.addTask('Task1', 'Desc1', date1, 1);
 project1.addTask('Task2', 'Take care of the task. Take care of the task. Take care of the task.', null, 2);
 
