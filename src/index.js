@@ -1,6 +1,6 @@
 import './style.css';
 import './initial-html.js';
-import {makeProjectCards} from './dynamic-html';
+import {makeProjectCards, updateAutoListItemCount} from './dynamic-html';
 import {projectHandler} from './factory-functions.js';
 
 const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
@@ -42,10 +42,11 @@ let project2 = projectHandler.getProject(1);
 let date1 = new Date(2021, 11, 12);
 project1.addTask('Task1', 'Desc1', date1, 1);
 project1.addTask('Task2', 'Take care of the task. Take care of the task. Take care of the task.', null, 2);
-project2.addTask('Task1', 'task1task1', null, 0);
+project2.addTask('Task1', 'task1task1', new Date(), 0);
 
 //let rawDate = '2/8/91';
 //let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());
 //console.log(cookedDate);
 
 makeProjectCards();
+updateAutoListItemCount();

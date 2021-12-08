@@ -23,6 +23,10 @@ p {
     margin: 0;
 }
 
+h4 {
+    margin: 0;
+}
+
 .header-input-div {
     display: none;
     flex-direction: column;

@@ -1,5 +1,32 @@
 import {projectHandler} from './factory-functions.js';
+import { checkIfDueToday } from './initial-html.js';
 const {format, parse} = require('date-fns');
+
+export function updateAutoListItemCount() {
+    let pTodoTodayCount = document.querySelector('#pTodoTodayCount');
+    let pTodoWeekCount = document.querySelector('#pTodoWeekCount');
+    let todayTaskCount = getTodayTaskCount();
+    if (todayTaskCount == 1) {
+        pTodoTodayCount.textContent = `${todayTaskCount} task`;
+    } else {
+        pTodoTodayCount.textContent = `${todayTaskCount} tasks`;
+    };
+}
+
+function getTodayTaskCount() {
+    let todaysDate = new Date();
+    let todaysTaskCount = 0;
+    let projCount = projectHandler.getProjectCount();
+    for (let i = 0; i < projCount; i++) {
+        let projObj = projectHandler.getProject(i);
+        for (let j = 0; j < projObj.getTaskCount(); j++) {
+            if (checkIfDueToday(i, j, todaysDate) == true) {
+                todaysTaskCount++;
+            };
+        };
+    };
+    return todaysTaskCount;
+}
 
 export function makeProjectCards() {
     let projCount = projectHandler.getProjectCount();
@@ -139,23 +166,23 @@ function checkInput(input) {
     }
 }
 
-function getCardID(inputID) {
+export function getCardID(inputID) {
     let arrayID = inputID.split('_');
     let cardID = `${arrayID[0]}_${arrayID[1]}`;
     return cardID;
 }
 
-function getProjIndex(cardID) {
+export function getProjIndex(cardID) {
     let arrayID = cardID.split('_');
     return arrayID[1];
 }
 
-function getTaskIndex(inputID) {
+export function getTaskIndex(inputID) {
     let arrayID = inputID.split('_');
     return arrayID[2];
 }
 
-function getDoneStatus(projIndex, taskIndex) {
+export function getDoneStatus(projIndex, taskIndex) {
     let projObj = projectHandler.getProject(projIndex);
     return projObj.getTaskDoneStatus(taskIndex);
 }
@@ -318,6 +345,15 @@ function clickBtnExpand(inputID) {
         pPriority.textContent = taskPriority;
         btnTaskExpand.textContent = 'Expand';
         btnTaskCollapse.textContent = 'Collapse';
+
+        //done status
+        let taskDoneStatus = projObj.getTaskDoneStatus(j);
+        if (taskDoneStatus == true) {
+            btnDone.style['background-color'] = 'dimgrey';
+            pTaskTitle.style['color'] = 'grey';
+            pDueDate.style['color'] = 'grey';
+            pPriority.style['color'] = 'grey';
+        }
         
         //construct DOM 
         divTask.appendChild(divMainIndTask);
@@ -400,6 +436,11 @@ function clickBtnTaskExpand() {
     btnDelTask.setAttribute('id', `${cardID}_${taskIndex}_btnDelTask`);
     divTaskIndNew.setAttribute('id', `${cardID}_${taskIndex}_divTaskIndNew`);
     btnCancelEditTask.style['display'] = 'none';
+
+    let taskDoneStatus = projObj.getTaskDoneStatus(taskIndex);
+    if (taskDoneStatus == true) {
+        pDesc.style['color'] = 'grey';
+    }
 
     divTaskInd.appendChild(divTaskIndNew);
     divTaskIndNew.appendChild(pDesc);
