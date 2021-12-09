@@ -1,7 +1,8 @@
 import './style.css';
 import './initial-html.js';
+import { checkIfDueThisWeek } from './initial-html.js';
 import {makeProjectCards, updateAutoListItemCount} from './dynamic-html';
-import {projectHandler} from './factory-functions.js';
+import {projectHandler, saveProjectsToLocalStorage, getProjectsFromLocalStorage} from './factory-functions.js';
 
 const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
 
@@ -34,6 +35,7 @@ let date6 = 'bad date format';
 console.log(isDate(date6));
 */
 
+
 projectHandler.createNewProject('Project 1');
 projectHandler.createNewProject('Project 2');
 projectHandler.createNewProject('Project 3');
@@ -50,3 +52,6 @@ project2.addTask('Task1', 'task1task1', new Date(), 0);
 
 makeProjectCards();
 updateAutoListItemCount();
+
+saveProjectsToLocalStorage();
+getProjectsFromLocalStorage();

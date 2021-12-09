@@ -1,18 +1,24 @@
 import {projectHandler} from './factory-functions.js';
-import { checkIfDueToday, clickBtnTodoTodayCollapse, clickBtnDoneInit } from './initial-html.js';
-const {format, parse} = require('date-fns');
+import { checkIfDueToday, clickBtnTodoTodayCollapse, clickBtnDoneInit, checkIfDueThisWeek, clickBtnTodoWeekCollapse } from './initial-html.js';
+const {format, parse, getWeek} = require('date-fns');
 
 export function updateAutoListItemCount() {
     let pTodoTodayCount = document.querySelector('#pTodoTodayCount');
     let pTodoWeekCount = document.querySelector('#pTodoWeekCount');
     let todayTaskCount = getTodayTaskCount();
+    let weekTaskCount = getWeekTaskCount();
+
     if (todayTaskCount == 1) {
         pTodoTodayCount.textContent = `${todayTaskCount} task`;
     } else {
         pTodoTodayCount.textContent = `${todayTaskCount} tasks`;
     };
 
-    //code for this week list
+    if (weekTaskCount == 1) {
+        pTodoWeekCount.textContent = `${weekTaskCount} task`;
+    } else {
+        pTodoWeekCount.textContent = `${weekTaskCount} tasks`;
+    };
 }
 
 function getTodayTaskCount() {
@@ -30,18 +36,65 @@ function getTodayTaskCount() {
     return todaysTaskCount;
 }
 
-function updateAutoListTextColor(projIndex, taskIndex) {
-    let divTask = document.querySelector(`#wee_${projIndex}_${taskIndex}_divTask`);
+function getWeekTaskCount() {
+    let weekTaskCount = 0;
+    let projCount = projectHandler.getProjectCount();
+    for (let i = 0; i < projCount; i++) {
+        let projObj = projectHandler.getProject(i);
+        for (let j = 0; j < projObj.getTaskCount(); j++) {
+            if (checkIfDueThisWeek(i, j) == true) {
+                weekTaskCount++;
+            };
+        };
+    };
+    return weekTaskCount;
+}
+
+function OLDupdateAutoListTextColor(projIndex, taskIndex) {
+    let divTask = document.querySelector(`#tod_${projIndex}_${taskIndex}_divTask`);
+    if (divTask == null) return;
     let pArray = divTask.querySelectorAll('p');
     let projObj = projectHandler.getProject(projIndex);
     let taskStatus = projObj.getTaskDoneStatus(taskIndex);
-    let btnDoneInit = document.querySelector(`#wee_${projIndex}_${taskIndex}_btnDone`);
+    let btnDoneInit = document.querySelector(`#tod_${projIndex}_${taskIndex}_btnDone`);
 
     for (let i = 0; i < pArray.length; i++) {
         if (taskStatus == true) {
             pArray[i].style['color'] = 'grey';
         } else {
             pArray[i].style['color'] = 'black';
+        }
+    }
+    if (taskStatus == true) {
+        btnDoneInit.style['background-color'] = 'dimgrey';
+    } else {
+        btnDoneInit.style['background-color'] = 'lightgrey';
+    }
+}
+
+function updateAutoListTextColor(projIndex, taskIndex) {
+    let todayDate = new Date();
+    let cardID;
+    if (checkIfDueToday(projIndex, taskIndex, todayDate) ==  true) {
+        cardID = `tod_${projIndex}`;
+    } else if (checkIfDueThisWeek(projIndex, taskIndex) == true) {
+        cardID = `wee_${projIndex}`;
+    } else {
+        return;
+    }
+
+    let divTask = document.querySelector(`#${cardID}_${taskIndex}_divTask`);
+    if (divTask == null) return;
+    let pArray = divTask.querySelectorAll('p');
+    let projObj = projectHandler.getProject(projIndex);
+    let taskStatus = projObj.getTaskDoneStatus(taskIndex);
+    let btnDoneInit = document.querySelector(`#${cardID}_${taskIndex}_btnDone`);
+
+    for (let i = 0; i < pArray.length; i++) {
+        if (taskStatus == true) {
+            pArray[i].style['color'] = 'grey';
+        } else {
+            pArray[i].style['color'] = 'black'; 
         }
     }
     if (taskStatus == true) {
@@ -415,6 +468,8 @@ function clickBtnDelDoneTasks() {
     clickBtnExpand(cardID);
     updateProjCardTaskCount(cardID);
     updateAutoListItemCount();
+    clickBtnTodoTodayCollapse();
+    clickBtnTodoWeekCollapse();
 }
 
 function clickBtnDone() {
@@ -434,11 +489,8 @@ function clickBtnDone() {
     
     changeTaskAppearance(projIndex, taskIndex);
     if (taskDate == null) return;
-    taskDate = format(taskDate, 'MM-dd-yyyy');
-    currDate = format(currDate, 'MM-dd-yyyy');
-    if (currDate == taskDate) {
-        updateAutoListTextColor(projIndex, taskIndex);
-    };
+
+    updateAutoListTextColor(projIndex, taskIndex);
 }   
 
 //this expands the individual task 
@@ -664,6 +716,7 @@ function clickBtnSubmitEdits() {
     clickBtnExpand(cardID);
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
+    clickBtnTodoWeekCollapse();
 }
 
 function clickBtnDelTask() {
@@ -676,6 +729,7 @@ function clickBtnDelTask() {
     clickBtnExpand(cardID);
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
+    clickBtnTodoWeekCollapse();
 }
 
 //this collapses and individual task 
@@ -874,4 +928,5 @@ function clickBtnSubmitNewTask() {
     updateProjCardTaskCount(cardID);
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
+    clickBtnTodoWeekCollapse();
 }

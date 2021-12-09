@@ -61,6 +61,7 @@ divAutoLists.classList.add('auto-container-div');
 divTodoToday.classList.add('project-div-auto');
 divTodoToday.setAttribute('id', 'divTodoToday');
 divTodoWeek.classList.add('project-div-auto');
+divTodoWeek.setAttribute('id', 'divTodoWeek');
 divProjectList.classList.add('project-container-div');
 newProjNameField.setAttribute('placeholder', 'Enter new project name');
 btnNewProjAccept.setAttribute('id', 'new-proj-accept');
@@ -102,6 +103,7 @@ divnewProjBtns.appendChild(btnNewProjCancel);
 body.appendChild(divProjectList);
 
 
+
 //helper functions
 export function checkIfDueToday(projIndex, taskIndex, todayDate) {
     let projObj = projectHandler.getProject(projIndex);
@@ -110,6 +112,17 @@ export function checkIfDueToday(projIndex, taskIndex, todayDate) {
     if (taskDate == null) return false;
     let fTaskDate = format(taskDate, 'dd-MMM-yyyy');
         if (fTodayDate == fTaskDate) {
+        return true;
+    } else return false; 
+}
+
+export function checkIfDueThisWeek(projIndex, taskIndex) {
+    let todayDate = new Date();
+    let todayPlusEight = addDays(todayDate, 8); 
+    let projObj = projectHandler.getProject(projIndex);
+    let taskDate = projObj.getTaskDueDate(taskIndex);
+    if (taskDate == null) return false;
+    if (isAfter(taskDate, todayDate) && isBefore(taskDate, todayPlusEight)) {
         return true;
     } else return false; 
 }
@@ -169,16 +182,9 @@ btnNewProjAccept.addEventListener('click', () => {
 });
 
 btnTodoTodayExp.addEventListener('click', clickBtnTodoTodayExpand);
-
 btnTodoTodayCollapse.addEventListener('click', clickBtnTodoTodayCollapse);
-
-btnTodoWeekExp.addEventListener('click', () => {
-
-});
-
-btnTodoWeekCollapse.addEventListener('click', () => {
-
-});
+btnTodoWeekExp.addEventListener('click', clickBtnTodoWeekExp);
+btnTodoWeekCollapse.addEventListener('click', clickBtnTodoWeekCollapse);
 
 function clickBtnTodoTodayExpand() {
     let todaysDate = new Date();
@@ -204,6 +210,88 @@ function clickBtnTodoTodayExpand() {
         for (let j = 0; j < projTaskCount; j++) {
             if (checkIfDueToday(i, j, todaysDate) == false) continue;
 
+            wasTaskAdded = true;
+
+            let divTask = document.createElement('div');
+            let divTaskInd = document.createElement('div');
+            let divBtnTitle = document.createElement('div');
+            let btnDone = document.createElement('button');
+            let pTaskTitle = document.createElement('p');
+            let pPriority = document.createElement('p');
+            let pDesc = document.createElement('p');
+
+            divTask.classList.add('new-task-div');
+            divTaskInd.classList.add('indiv-task-div');
+            btnDone.classList.add('check-button');
+            divBtnTitle.classList.add('indiv-task-btn-and-title-div');
+
+            divTask.setAttribute('id', `tod_${i}_${j}_divTask`);
+            divTaskInd.setAttribute('id', `tod_${i}_${j}_divTaskInd`);
+            btnDone.setAttribute('id', `tod_${i}_${j}_btnDone`);
+
+            pPriority.style['margin-left'] = 'auto';
+
+            //button click events 
+            btnDone.addEventListener('click', clickBtnDoneInit)
+
+            //text content and styles 
+            pTaskTitle.textContent = projObj.getTaskTitle(j);
+            pDesc.textContent = `Desc: ${projObj.getTaskDesc(j)}`;
+            let rawPriority = projObj.getTaskPriority(j)
+            let taskPriority;
+            if (rawPriority == 0) taskPriority = 'Priority: none';
+            if (rawPriority == 3) taskPriority = 'Priority: Low';
+            if (rawPriority == 2) taskPriority = 'Priority: Medium';
+            if (rawPriority == 1) taskPriority = 'Priority: High';
+            pPriority.textContent = taskPriority;
+
+            let doneStatus = projObj.getTaskDoneStatus(j);
+            if (doneStatus == true) {
+                btnDone.style['background-color'] = 'dimgrey';
+                pTaskTitle.style['color'] = 'grey';
+                pPriority.style['color'] = 'grey';
+                pDesc.style['color'] = 'grey';
+            }
+
+            //construct DOM 
+            divTaskToday.appendChild(divTask);
+            divTask.appendChild(divTaskInd);
+            divTaskInd.appendChild(divBtnTitle);
+            divBtnTitle.appendChild(btnDone);
+            divBtnTitle.appendChild(pTaskTitle);
+            divTaskInd.appendChild(pPriority);
+            divTask.appendChild(pDesc);
+        }
+        if (wasTaskAdded == false) {
+            divTaskToday.removeChild(h4ProjTitle);
+        };
+    };
+    btnTodoTodayExp.style['display'] = 'none';
+    btnTodoTodayCollapse.style['display'] = 'inline';
+}
+
+function clickBtnTodoWeekExp() {
+    let projCount = projectHandler.getProjectCount();
+    let divTaskWeek = document.createElement('div');
+    let divTodoWeek = document.querySelector('#divTodoWeek');
+
+    divTaskWeek.setAttribute('id', 'autolist-week');
+
+    divTodoWeek.appendChild(divTaskWeek);
+    
+    for (let i = 0; i < projCount; i++) {
+        //append header for project, h4
+        let projObj = projectHandler.getProject(i);
+        let h4ProjTitle = document.createElement('h4');
+        let projTaskCount = projObj.getTaskCount();
+
+        h4ProjTitle.textContent = projObj.getProjName();
+        divTaskWeek.appendChild(h4ProjTitle);
+
+        let wasTaskAdded = false;
+
+        for (let j = 0; j < projTaskCount; j++) {
+            if (checkIfDueThisWeek(i, j) == false) continue;
             wasTaskAdded = true;
 
             let divTask = document.createElement('div');
@@ -248,7 +336,7 @@ function clickBtnTodoTodayExpand() {
             }
 
             //construct DOM 
-            divTaskToday.appendChild(divTask);
+            divTaskWeek.appendChild(divTask);
             divTask.appendChild(divTaskInd);
             divTaskInd.appendChild(divBtnTitle);
             divBtnTitle.appendChild(btnDone);
@@ -257,11 +345,11 @@ function clickBtnTodoTodayExpand() {
             divTask.appendChild(pDesc);
         }
         if (wasTaskAdded == false) {
-            divTaskToday.removeChild(h4ProjTitle);
+            divTaskWeek.removeChild(h4ProjTitle);
         };
     };
-    btnTodoTodayExp.style['display'] = 'none';
-    btnTodoTodayCollapse.style['display'] = 'inline';
+    btnTodoWeekExp.style['display'] = 'none';
+    btnTodoWeekCollapse.style['display'] = 'inline';
 }
 
 export function clickBtnTodoTodayCollapse() {
@@ -271,6 +359,15 @@ export function clickBtnTodoTodayCollapse() {
     divTodoToday.removeChild(divTaskToday);
     btnTodoTodayCollapse.style['display'] = 'none';
     btnTodoTodayExp.style['display'] = 'inline';
+}
+
+export function clickBtnTodoWeekCollapse() {
+    let divTaskWeek = document.querySelector('#autolist-week');
+    let divTodoWeek = document.querySelector('#divTodoWeek');
+    if (divTaskWeek == null) return;
+    divTodoWeek.removeChild(divTaskWeek);
+    btnTodoWeekCollapse.style['display'] = 'none';
+    btnTodoWeekExp.style['display'] = 'inline';
 }
 
 export function clickBtnDoneInit() {

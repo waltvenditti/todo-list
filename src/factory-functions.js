@@ -188,3 +188,46 @@ export const projectHandler = (function() {
 
     return {createNewProject, getProject, removeProject, getProjectCount};
 })();
+
+
+export function saveProjectsToLocalStorage() {
+    let projCount = projectHandler.getProjectCount();
+    for (let i = 0; i < projCount; i++) {
+        let projObj = projectHandler.getProject(i);
+        let projectID = `pid${i}`;
+        let projTasksArray = [];
+        let taskCount = projObj.getTaskCount();
+        for (let j = 0; j < taskCount; j++) {
+            let taskTitle = projObj.getTaskTitle(j);
+            let taskDesc = projObj.getTaskDesc(j);
+            let taskDueDate = projObj.getTaskDueDate(j);
+            let taskPriority = projObj.getTaskPriority(j);
+            let taskDoneStatus = projObj.getTaskDoneStatus(j);
+
+            let currTaskArray = [
+                taskTitle,
+                taskDesc,
+                taskDueDate,
+                taskPriority,
+                taskDoneStatus
+            ]
+
+            projTasksArray.push(currTaskArray);
+        }
+        localStorage.setItem(projectID, projTasksArray);
+    }
+}
+
+export function getProjectsFromLocalStorage() {
+    let projCount = localStorage.length;
+    for (let i = 0; i < projCount; i++) {
+        let projectID = `pid${i}`;
+        let tasksString = localStorage.getItem(projectID);
+        if (tasksString.length == 0) {
+            //???
+        }
+        //how to store the task info so that the string can be split easily? 
+        console.log(tasksString);
+    }
+}
+
