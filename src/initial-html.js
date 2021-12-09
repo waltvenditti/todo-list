@@ -59,6 +59,7 @@ divNewTask.classList.add('header-input-div');
 newProjNameField.setAttribute('id', 'new-proj-input');
 divAutoLists.classList.add('auto-container-div');
 divTodoToday.classList.add('project-div-auto');
+divTodoToday.setAttribute('id', 'divTodoToday');
 divTodoWeek.classList.add('project-div-auto');
 divProjectList.classList.add('project-container-div');
 newProjNameField.setAttribute('placeholder', 'Enter new project name');
@@ -113,10 +114,13 @@ export function checkIfDueToday(projIndex, taskIndex, todayDate) {
     } else return false; 
 }
 
-function changeTaskAppearanceInitial(projIndex, taskIndex) {
+function changeTaskAppearanceInitial(inputID) {
+    let cardID = getCardID(inputID);
+    let projIndex = getProjIndex(cardID);
+    let taskIndex = getTaskIndex(inputID);
     let projObj = projectHandler.getProject(projIndex);
     let taskDoneStatus = projObj.getTaskDoneStatus(taskIndex);
-    let divTaskInd = document.querySelector(`#wee_${projIndex}_${taskIndex}_divTaskInd`);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_divTask`);
     let pElements = divTaskInd.querySelectorAll('p');
 
     if (taskDoneStatus == true) {
@@ -164,11 +168,23 @@ btnNewProjAccept.addEventListener('click', () => {
     //generate new project card 
 });
 
-btnTodoTodayExp.addEventListener('click', () => {
-    //need to add this function so its called anytime the projects or tasks are updated 
+btnTodoTodayExp.addEventListener('click', clickBtnTodoTodayExpand);
+
+btnTodoTodayCollapse.addEventListener('click', clickBtnTodoTodayCollapse);
+
+btnTodoWeekExp.addEventListener('click', () => {
+
+});
+
+btnTodoWeekCollapse.addEventListener('click', () => {
+
+});
+
+function clickBtnTodoTodayExpand() {
     let todaysDate = new Date();
     let projCount = projectHandler.getProjectCount();
     let divTaskToday = document.createElement('div');
+    let divTodoToday = document.querySelector('#divTodoToday');
 
     divTaskToday.setAttribute('id', 'autolist-today');
 
@@ -190,7 +206,7 @@ btnTodoTodayExp.addEventListener('click', () => {
 
             wasTaskAdded = true;
 
-            let divMainIndTask = document.createElement('div');
+            let divTask = document.createElement('div');
             let divTaskInd = document.createElement('div');
             let divBtnTitle = document.createElement('div');
             let btnDone = document.createElement('button');
@@ -198,19 +214,19 @@ btnTodoTodayExp.addEventListener('click', () => {
             let pPriority = document.createElement('p');
             let pDesc = document.createElement('p');
 
-            divMainIndTask.classList.add('new-task-div');
+            divTask.classList.add('new-task-div');
             divTaskInd.classList.add('indiv-task-div');
             btnDone.classList.add('check-button');
             divBtnTitle.classList.add('indiv-task-btn-and-title-div');
 
-            divMainIndTask.setAttribute('id', `wee_${i}_${j}_divMainIndTask`);
+            divTask.setAttribute('id', `wee_${i}_${j}_divTask`);
             divTaskInd.setAttribute('id', `wee_${i}_${j}_divTaskInd`);
             btnDone.setAttribute('id', `wee_${i}_${j}_btnDone`);
 
             pPriority.style['margin-left'] = 'auto';
 
             //button click events 
-            btnDone.addEventListener('click', clickBtnDone)
+            btnDone.addEventListener('click', clickBtnDoneInit)
 
             //text content and styles 
             pTaskTitle.textContent = projObj.getTaskTitle(j);
@@ -228,16 +244,17 @@ btnTodoTodayExp.addEventListener('click', () => {
                 btnDone.style['background-color'] = 'dimgrey';
                 pTaskTitle.style['color'] = 'grey';
                 pPriority.style['color'] = 'grey';
+                pDesc.style['color'] = 'grey';
             }
 
             //construct DOM 
-            divTaskToday.appendChild(divMainIndTask);
-            divMainIndTask.appendChild(divTaskInd);
+            divTaskToday.appendChild(divTask);
+            divTask.appendChild(divTaskInd);
             divTaskInd.appendChild(divBtnTitle);
             divBtnTitle.appendChild(btnDone);
             divBtnTitle.appendChild(pTaskTitle);
             divTaskInd.appendChild(pPriority);
-            divMainIndTask.appendChild(pDesc);
+            divTask.appendChild(pDesc);
         }
         if (wasTaskAdded == false) {
             divTaskToday.removeChild(h4ProjTitle);
@@ -245,28 +262,18 @@ btnTodoTodayExp.addEventListener('click', () => {
     };
     btnTodoTodayExp.style['display'] = 'none';
     btnTodoTodayCollapse.style['display'] = 'inline';
+}
 
-    //create list of tasks like in project cards
-        //no duedate needed since they're all due today
-    //delcomp'dtasks button removes from list, updates poject cards (just have it delete and remake project cards)
-});
-
-btnTodoTodayCollapse.addEventListener('click', () => {
+export function clickBtnTodoTodayCollapse() {
     let divTaskToday = document.querySelector('#autolist-today');
+    let divTodoToday = document.querySelector('#divTodoToday');
+    if (divTaskToday == null) return;
     divTodoToday.removeChild(divTaskToday);
     btnTodoTodayCollapse.style['display'] = 'none';
     btnTodoTodayExp.style['display'] = 'inline';
-});
+}
 
-btnTodoWeekExp.addEventListener('click', () => {
-
-});
-
-btnTodoWeekCollapse.addEventListener('click', () => {
-
-});
-
-function clickBtnDone() {
+export function clickBtnDoneInit() {
     let cardID = getCardID(this.id);
     let projIndex = getProjIndex(cardID);
     let taskIndex = getTaskIndex(this.id);
@@ -274,17 +281,32 @@ function clickBtnDone() {
     projObj.changeTaskDoneStatus(taskIndex); 
     
     let doneStatus = getDoneStatus(projIndex, taskIndex);
-    /*
+    
     if (doneStatus == false) {
         this.style['background-color'] = 'lightgrey';
     } else {
         this.style['background-color'] = 'dimgrey';
     };
-    */
-   if (doneStatus == true) {
-       btnsArray = document.querySelector('[id$=`-${projIndex}_${taskIndex}_btnDone`]').id;
-       console.log(btnsArray);
-   }
-    
-    changeTaskAppearanceInitial(projIndex, taskIndex);
+
+    let projCardDoneBtn = document.querySelector(`#pid_${projIndex}_${taskIndex}_btnDone`);
+    if (projCardDoneBtn != null) {
+        if (doneStatus == false) {
+            projCardDoneBtn.style['background-color'] = 'lightgrey';
+        } else {
+            projCardDoneBtn.style['background-color'] = 'dimgrey';
+        };
+        let projTaskDiv = document.querySelector(`#pid_${projIndex}_${taskIndex}`);
+        let pElements = projTaskDiv.querySelectorAll('p');
+        if (doneStatus == true) {
+            for (let i = 0; i < pElements.length; i++) {
+                pElements[i].style['color'] = 'grey'
+            }
+        } else {
+            for (let i = 0; i < pElements.length; i++) {
+                pElements[i].style['color'] = 'black';
+            };
+        
+        } 
+    }
+    changeTaskAppearanceInitial(this.id);
 }

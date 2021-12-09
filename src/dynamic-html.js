@@ -1,5 +1,5 @@
 import {projectHandler} from './factory-functions.js';
-import { checkIfDueToday } from './initial-html.js';
+import { checkIfDueToday, clickBtnTodoTodayCollapse, clickBtnDoneInit } from './initial-html.js';
 const {format, parse} = require('date-fns');
 
 export function updateAutoListItemCount() {
@@ -11,6 +11,8 @@ export function updateAutoListItemCount() {
     } else {
         pTodoTodayCount.textContent = `${todayTaskCount} tasks`;
     };
+
+    //code for this week list
 }
 
 function getTodayTaskCount() {
@@ -26,6 +28,27 @@ function getTodayTaskCount() {
         };
     };
     return todaysTaskCount;
+}
+
+function updateAutoListTextColor(projIndex, taskIndex) {
+    let divTask = document.querySelector(`#wee_${projIndex}_${taskIndex}_divTask`);
+    let pArray = divTask.querySelectorAll('p');
+    let projObj = projectHandler.getProject(projIndex);
+    let taskStatus = projObj.getTaskDoneStatus(taskIndex);
+    let btnDoneInit = document.querySelector(`#wee_${projIndex}_${taskIndex}_btnDone`);
+
+    for (let i = 0; i < pArray.length; i++) {
+        if (taskStatus == true) {
+            pArray[i].style['color'] = 'grey';
+        } else {
+            pArray[i].style['color'] = 'black';
+        }
+    }
+    if (taskStatus == true) {
+        btnDoneInit.style['background-color'] = 'dimgrey';
+    } else {
+        btnDoneInit.style['background-color'] = 'lightgrey';
+    }
 }
 
 export function makeProjectCards() {
@@ -170,6 +193,11 @@ export function getCardID(inputID) {
     let arrayID = inputID.split('_');
     let cardID = `${arrayID[0]}_${arrayID[1]}`;
     return cardID;
+}
+
+export function getCardTag(inputID) {
+    let arrayID = inputID.split('_');
+    return arrayID[0];
 }
 
 export function getProjIndex(cardID) {
@@ -386,6 +414,7 @@ function clickBtnDelDoneTasks() {
     clickBtnCollapse(cardID);
     clickBtnExpand(cardID);
     updateProjCardTaskCount(cardID);
+    updateAutoListItemCount();
 }
 
 function clickBtnDone() {
@@ -394,8 +423,9 @@ function clickBtnDone() {
     let taskIndex = getTaskIndex(this.id);
     let projObj = projectHandler.getProject(projIndex);
     projObj.changeTaskDoneStatus(taskIndex); 
-    
     let doneStatus = getDoneStatus(projIndex, taskIndex);
+    let taskDate = projObj.getTaskDueDate(taskIndex);
+    let currDate = new Date();
     if (doneStatus == false) {
         this.style['background-color'] = 'lightgrey';
     } else {
@@ -403,7 +433,13 @@ function clickBtnDone() {
     };
     
     changeTaskAppearance(projIndex, taskIndex);
-}
+    if (taskDate == null) return;
+    taskDate = format(taskDate, 'MM-dd-yyyy');
+    currDate = format(currDate, 'MM-dd-yyyy');
+    if (currDate == taskDate) {
+        updateAutoListTextColor(projIndex, taskIndex);
+    };
+}   
 
 //this expands the individual task 
 function clickBtnTaskExpand() {
@@ -626,6 +662,8 @@ function clickBtnSubmitEdits() {
 
     clickBtnCollapse(cardID);
     clickBtnExpand(cardID);
+    updateAutoListItemCount();
+    clickBtnTodoTodayCollapse();
 }
 
 function clickBtnDelTask() {
@@ -636,6 +674,8 @@ function clickBtnDelTask() {
     updateProjCardTaskCount(cardID)
     clickBtnCollapse(cardID);
     clickBtnExpand(cardID);
+    updateAutoListItemCount();
+    clickBtnTodoTodayCollapse();
 }
 
 //this collapses and individual task 
@@ -810,7 +850,9 @@ function clickBtnSubmitNewTask() {
     };
     
     if (newDate == '') newDate = null;
-    else newDate = parse(newDate, 'yyyy-MM-dd', new Date());
+    else {
+        newDate = parse(newDate, 'yyyy-MM-dd', new Date());
+    }
 
     if (inpRB0.checked == true) newPriority = 0;
     if (inpRB1.checked == true) newPriority = 1;
@@ -830,4 +872,6 @@ function clickBtnSubmitNewTask() {
         clickBtnExpand(cardID);
     };
     updateProjCardTaskCount(cardID);
+    updateAutoListItemCount();
+    clickBtnTodoTodayCollapse();
 }
