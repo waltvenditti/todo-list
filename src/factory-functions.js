@@ -201,15 +201,17 @@ export function saveProjectsToLocalStorage() {
             let taskTitle = projObj.getTaskTitle(j);
             let taskDesc = projObj.getTaskDesc(j);
             let taskDueDate = projObj.getTaskDueDate(j);
+            if (taskDueDate == null) taskDueDate ='NULL';
             let taskPriority = projObj.getTaskPriority(j);
             let taskDoneStatus = projObj.getTaskDoneStatus(j);
 
             let currTaskArray = [
-                taskTitle,
-                taskDesc,
-                taskDueDate,
-                taskPriority,
-                taskDoneStatus
+                'NEW$TASK$',
+                `${taskTitle}$DIV$`,
+                `${taskDesc}$DIV$`,
+                `${taskDueDate}$DIV$`,
+                `${taskPriority}$DIV$`,
+                `${taskDoneStatus}$DIV$`
             ]
 
             projTasksArray.push(currTaskArray);
@@ -218,16 +220,45 @@ export function saveProjectsToLocalStorage() {
     }
 }
 
+
 export function getProjectsFromLocalStorage() {
     let projCount = localStorage.length;
+    let projects = [];
     for (let i = 0; i < projCount; i++) {
         let projectID = `pid${i}`;
-        let tasksString = localStorage.getItem(projectID);
-        if (tasksString.length == 0) {
-            //???
-        }
-        //how to store the task info so that the string can be split easily? 
-        console.log(tasksString);
+        let indivProjString = localStorage.getItem(projectID);
+        let projArray = indivProjString.split('NEW$TASK$');
+        projArray[0] = projectID;
+        projects.push(projArray);
     }
+    return projects;
 }
 
+export function createArraysForEachTask(projectsArray) {
+    let projCount = projectsArray.length;
+    for (let i = 0; i < projCount; i++) {
+        let project = projectsArray[i];
+        if (project.length == 1) continue;
+        //true task count is taskCount-1, since the first element is the project ID
+        let taskCount = project.length;
+        for (let j = 1; j < taskCount; j++) {
+            project[j] = project[j].split('$DIV$')
+            //below removes a blank element after string split
+            project[j].pop();  
+            //below loop removes commas on each task ele
+            for (let k = 0; k < project[j].length; k++) {
+                project[j][k] = project[j][k].slice(1);
+            }
+            //converts date string to Date() obj
+            project[j][2] = new Date(project[j][2]);
+        }
+        
+    }
+    return projectsArray;
+}
+
+export function clearProjects() {
+    while (projectHandler.getProjectCount() != 0) {
+        projectHandler.removeProject(0);
+    }
+}

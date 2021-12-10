@@ -2,7 +2,7 @@ import './style.css';
 import './initial-html.js';
 import { checkIfDueThisWeek } from './initial-html.js';
 import {makeProjectCards, updateAutoListItemCount} from './dynamic-html';
-import {projectHandler, saveProjectsToLocalStorage, getProjectsFromLocalStorage} from './factory-functions.js';
+import {projectHandler, saveProjectsToLocalStorage, getProjectsFromLocalStorage, createArraysForEachTask, clearProjects} from './factory-functions.js';
 
 const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
 
@@ -50,8 +50,14 @@ project2.addTask('Task1', 'task1task1', new Date(), 0);
 //let cookedDate = parse(rawDate, 'MM/dd/yy', new Date());
 //console.log(cookedDate);
 
-makeProjectCards();
+//makeProjectCards();
+//delete projects
+//fetch them from storage
+//replenish projectHandler
+//then make project cards
 updateAutoListItemCount();
 
 saveProjectsToLocalStorage();
-getProjectsFromLocalStorage();
+let crudeProjArray = getProjectsFromLocalStorage()
+let splitProjArray = createArraysForEachTask(crudeProjArray);
+console.log(splitProjArray);
