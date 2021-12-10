@@ -1,6 +1,6 @@
 import {projectHandler} from './factory-functions.js';
 import { checkIfDueToday, clickBtnTodoTodayCollapse, clickBtnDoneInit, checkIfDueThisWeek, clickBtnTodoWeekCollapse } from './initial-html.js';
-const {format, parse, getWeek} = require('date-fns');
+const {format, parse, addDays} = require('date-fns');
 
 export function updateAutoListItemCount() {
     let pTodoTodayCount = document.querySelector('#pTodoTodayCount');
@@ -48,28 +48,6 @@ function getWeekTaskCount() {
         };
     };
     return weekTaskCount;
-}
-
-function OLDupdateAutoListTextColor(projIndex, taskIndex) {
-    let divTask = document.querySelector(`#tod_${projIndex}_${taskIndex}_divTask`);
-    if (divTask == null) return;
-    let pArray = divTask.querySelectorAll('p');
-    let projObj = projectHandler.getProject(projIndex);
-    let taskStatus = projObj.getTaskDoneStatus(taskIndex);
-    let btnDoneInit = document.querySelector(`#tod_${projIndex}_${taskIndex}_btnDone`);
-
-    for (let i = 0; i < pArray.length; i++) {
-        if (taskStatus == true) {
-            pArray[i].style['color'] = 'grey';
-        } else {
-            pArray[i].style['color'] = 'black';
-        }
-    }
-    if (taskStatus == true) {
-        btnDoneInit.style['background-color'] = 'dimgrey';
-    } else {
-        btnDoneInit.style['background-color'] = 'lightgrey';
-    }
 }
 
 function updateAutoListTextColor(projIndex, taskIndex) {
@@ -218,6 +196,7 @@ export function makeProjectCards() {
         divBtns.appendChild(btnExpand);
         divBtns.appendChild(btnCollapse);
     }
+    updateAutoListItemCount();
 }
 
 export function clearProjectCards() {
@@ -394,6 +373,7 @@ function clickBtnExpand(inputID) {
         btnTaskExpand.setAttribute('id', `${cardID}_${j}_btnTaskExpand`);
         btnTaskCollapse.setAttribute('id', `${cardID}_${j}_btnTaskCollapse`);
         btnDone.setAttribute('id', `${cardID}_${j}_btnDone`);
+        pDueDate.setAttribute('id', 'task-due-date');
 
         btnTaskCollapse.style['display'] = 'none';
 
@@ -413,17 +393,18 @@ function clickBtnExpand(inputID) {
         let taskDate = projObj.getTaskDueDate(j);
         if (taskDate != null) {
             let date = format(projObj.getTaskDueDate(j), 'MM/dd/yy');
-            pDueDate.textContent = date;
+            pDueDate.textContent = `Due: ${date}`;
         } else {
-            pDueDate.textContent = '. . . . . . . .';
+            pDueDate.textContent = '';
         }
         let rawPriority = projObj.getTaskPriority(j)
         let taskPriority;
         if (rawPriority == 0) taskPriority = 'none';
         if (rawPriority == 3) taskPriority = 'Low';
-        if (rawPriority == 2) taskPriority = 'Medium';
+        if (rawPriority == 2) taskPriority = 'Med';
         if (rawPriority == 1) taskPriority = 'High';
-        pPriority.textContent = taskPriority;
+        if (rawPriority == 0) pPriority.textContent = '';
+        else pPriority.textContent = `Priority: ${taskPriority}`;
         btnTaskExpand.textContent = 'Expand';
         btnTaskCollapse.textContent = 'Collapse';
 
@@ -442,8 +423,9 @@ function clickBtnExpand(inputID) {
         divTaskInd.appendChild(divBtnTitle);
         divBtnTitle.appendChild(btnDone);
         divBtnTitle.appendChild(pTaskTitle);
-        divTaskInd.appendChild(pDueDate);
+        
         divTaskInd.appendChild(divBtnExp);
+        divBtnExp.appendChild(pDueDate);
         divBtnExp.appendChild(pPriority);
         divBtnExp.appendChild(btnTaskExpand);
         divBtnExp.appendChild(btnTaskCollapse);
@@ -480,7 +462,6 @@ function clickBtnDone() {
     projObj.changeTaskDoneStatus(taskIndex); 
     let doneStatus = getDoneStatus(projIndex, taskIndex);
     let taskDate = projObj.getTaskDueDate(taskIndex);
-    let currDate = new Date();
     if (doneStatus == false) {
         this.style['background-color'] = 'lightgrey';
     } else {
@@ -491,6 +472,7 @@ function clickBtnDone() {
     if (taskDate == null) return;
 
     updateAutoListTextColor(projIndex, taskIndex);
+    saveProjectsToLocalStorage();
 }   
 
 //this expands the individual task 
@@ -717,6 +699,7 @@ function clickBtnSubmitEdits() {
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
     clickBtnTodoWeekCollapse();
+    saveProjectsToLocalStorage();
 }
 
 function clickBtnDelTask() {
@@ -730,6 +713,7 @@ function clickBtnDelTask() {
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
     clickBtnTodoWeekCollapse();
+    saveProjectsToLocalStorage();
 }
 
 //this collapses and individual task 
@@ -914,7 +898,7 @@ function clickBtnSubmitNewTask() {
     if (inpRB3.checked == true) newPriority = 3;
 
     let projObj = projectHandler.getProject(index);
-    projObj.addTask(newName, newDesc, newDate, newPriority);
+    projObj.addTask(newName, newDesc, newDate, newPriority, false);
     
     let pTaskCount = document.querySelector(`#${cardID}_pTaskCount`);
     pTaskCount.textContent = `${projObj.getTaskCount()} tasks`;
@@ -929,4 +913,137 @@ function clickBtnSubmitNewTask() {
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
     clickBtnTodoWeekCollapse();
+    saveProjectsToLocalStorage();
 }
+
+
+//Local Storage Functions
+//-----------------------
+export function saveProjectsToLocalStorage() {
+    localStorage.clear();
+    let projCount = projectHandler.getProjectCount();
+    for (let i = 0; i < projCount; i++) {
+        let projObj = projectHandler.getProject(i);
+        let projectID = projObj.getProjName();
+        let projTasksArray = [];
+        let taskCount = projObj.getTaskCount();
+        for (let j = 0; j < taskCount; j++) {
+            let taskTitle = projObj.getTaskTitle(j);
+            let taskDesc = projObj.getTaskDesc(j);
+            let taskDueDate = projObj.getTaskDueDate(j);
+            if (taskDueDate == null) taskDueDate ='NULL';
+            let taskPriority = projObj.getTaskPriority(j);
+            let taskDoneStatus = projObj.getTaskDoneStatus(j);
+
+            let currTaskArray = [
+                'NEW$TASK$',
+                `${taskTitle}$DIV$`,
+                `${taskDesc}$DIV$`,
+                `${taskDueDate}$DIV$`,
+                `${taskPriority}$DIV$`,
+                `${taskDoneStatus}$DIV$`
+            ]
+
+            projTasksArray.push(currTaskArray);
+        }
+        localStorage.setItem(projectID, projTasksArray);
+    }
+}
+
+
+export function getProjectsFromLocalStorage() {
+    let projCount = localStorage.length;
+    let projects = [];
+    for (let i = projCount-1; i >= 0; i--) {
+        let projectID = localStorage.key(i);
+        let indivProjString = localStorage.getItem(projectID);
+        let projArray = indivProjString.split('NEW$TASK$');
+        projArray[0] = projectID;
+        projects.push(projArray);
+    }
+    return projects;
+}
+
+export function createArraysForEachTask(projectsArray) {
+    let projCount = projectsArray.length;
+    for (let i = 0; i < projCount; i++) {
+        let project = projectsArray[i];
+        if (project.length == 1) continue;
+        //true task count is taskCount-1, since the first element is the project ID
+        let taskCount = project.length;
+        for (let j = 1; j < taskCount; j++) {
+            project[j] = project[j].split('$DIV$')
+            //below removes a blank element after string split
+            project[j].pop();  
+            //below loop removes commas on each task ele
+            for (let k = 0; k < project[j].length; k++) {
+                project[j][k] = project[j][k].slice(1);
+            }
+            //converts date string to Date() obj
+            if (project[j][2] == 'NULL') {
+                project[j][2] = null;
+            } else {
+            project[j][2] = new Date(project[j][2]);
+            }
+        }
+        
+    }
+    return projectsArray;
+}
+
+export function clearProjects() {
+    while (projectHandler.getProjectCount() != 0) {
+        projectHandler.removeProject(0);
+    }
+    updateAutoListItemCount();
+}
+
+export function reconstituteProjectArray() {
+    let projects = getProjectsFromLocalStorage();
+    projects = createArraysForEachTask(projects);
+    let projCount = projects.length;
+    clearProjects();
+    clearProjectCards();
+
+    for (let i = 0; i < projCount; i++) {
+        let projTitle = projects[i][0];
+        let taskCount = projects[i].length;
+        projectHandler.createNewProject(projTitle);
+        if (taskCount == 1) continue;
+        let projObj = projectHandler.getProject(i);
+        for (let j = 1; j < taskCount; j++) {
+            let taskTitle = projects[i][j][0];
+            let taskDesc = projects[i][j][1];
+            let taskDueDate = projects[i][j][2];
+            let taskPriority = projects[i][j][3];
+            let taskDoneStatus = projects[i][j][4];
+            projObj.addTask(taskTitle, taskDesc, taskDueDate, taskPriority, taskDoneStatus);
+        }
+    }
+}
+
+export function restoreDefaultProjects() {
+    localStorage.clear();
+    projectHandler.createNewProject('Groceries');
+    projectHandler.createNewProject('House Work');
+    projectHandler.createNewProject('Marathon Prep');
+
+    let groceries = projectHandler.getProject(0);
+    let houseWork = projectHandler.getProject(1);
+    let marathonPrep = projectHandler.getProject(2);
+
+    groceries.addTask('Yogurt', 'unflavored, non-fat', null, 0, false);
+    groceries.addTask('Drain cleaner', '', new Date(), 1, false);
+    groceries.addTask('Chuck roast', '', null, 2, false);
+
+    houseWork.addTask('Unclog shower drain', 'need to buy some drain cleaner ASAP.', new Date(), 1, false);
+    houseWork.addTask('Run auto-clean on oven', 'This will take around 3 hours and make the house smell.', addDays(new Date(), 4), 3, false);
+
+    marathonPrep.addTask('Run 7 miles', '', new Date(), 2, false);
+    marathonPrep.addTask('Run 7 miles', '', addDays(new Date(), 4), 2, false);
+    marathonPrep.addTask('Run half-marathon', '', addDays(new Date(), 14), 2, false);
+    marathonPrep.addTask('Marathon Day', '', addDays(new Date(), 41), 1, false);
+    saveProjectsToLocalStorage();
+}
+
+//saveProjectsToLocalStorage is not storing the doneStatus for some reason

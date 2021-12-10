@@ -1,11 +1,11 @@
+import { clearProjectCards, updateAutoListItemCount } from './dynamic-html';
 
-
-export const taskFactory = function(initTitle, initDesc, initDueDate, initPriority) {
+export const taskFactory = function(initTitle, initDesc, initDueDate, initPriority, initDoneStatus) {
     let title = initTitle;
     let desc = initDesc;
     let dueDate = initDueDate;
     let priority = initPriority;
-    let doneStatus = false; 
+    let doneStatus = initDoneStatus; 
 
     if (title.includes('_')) {
         let titleArray = title.split('_');
@@ -85,8 +85,8 @@ export const projectFactory = function(initName) {
     }
 
     //dates are stored either as Date objects or as null (if there is no due date)
-    const addTask = function(title, desc, dueDate, priority) {
-        let newTask = taskFactory(title, desc, dueDate, priority);
+    const addTask = function(title, desc, dueDate, priority, doneStatus) {
+        let newTask = taskFactory(title, desc, dueDate, priority, doneStatus);
         taskArray.push(newTask);
     }
 
@@ -188,77 +188,3 @@ export const projectHandler = (function() {
 
     return {createNewProject, getProject, removeProject, getProjectCount};
 })();
-
-
-export function saveProjectsToLocalStorage() {
-    let projCount = projectHandler.getProjectCount();
-    for (let i = 0; i < projCount; i++) {
-        let projObj = projectHandler.getProject(i);
-        let projectID = `pid${i}`;
-        let projTasksArray = [];
-        let taskCount = projObj.getTaskCount();
-        for (let j = 0; j < taskCount; j++) {
-            let taskTitle = projObj.getTaskTitle(j);
-            let taskDesc = projObj.getTaskDesc(j);
-            let taskDueDate = projObj.getTaskDueDate(j);
-            if (taskDueDate == null) taskDueDate ='NULL';
-            let taskPriority = projObj.getTaskPriority(j);
-            let taskDoneStatus = projObj.getTaskDoneStatus(j);
-
-            let currTaskArray = [
-                'NEW$TASK$',
-                `${taskTitle}$DIV$`,
-                `${taskDesc}$DIV$`,
-                `${taskDueDate}$DIV$`,
-                `${taskPriority}$DIV$`,
-                `${taskDoneStatus}$DIV$`
-            ]
-
-            projTasksArray.push(currTaskArray);
-        }
-        localStorage.setItem(projectID, projTasksArray);
-    }
-}
-
-
-export function getProjectsFromLocalStorage() {
-    let projCount = localStorage.length;
-    let projects = [];
-    for (let i = 0; i < projCount; i++) {
-        let projectID = `pid${i}`;
-        let indivProjString = localStorage.getItem(projectID);
-        let projArray = indivProjString.split('NEW$TASK$');
-        projArray[0] = projectID;
-        projects.push(projArray);
-    }
-    return projects;
-}
-
-export function createArraysForEachTask(projectsArray) {
-    let projCount = projectsArray.length;
-    for (let i = 0; i < projCount; i++) {
-        let project = projectsArray[i];
-        if (project.length == 1) continue;
-        //true task count is taskCount-1, since the first element is the project ID
-        let taskCount = project.length;
-        for (let j = 1; j < taskCount; j++) {
-            project[j] = project[j].split('$DIV$')
-            //below removes a blank element after string split
-            project[j].pop();  
-            //below loop removes commas on each task ele
-            for (let k = 0; k < project[j].length; k++) {
-                project[j][k] = project[j][k].slice(1);
-            }
-            //converts date string to Date() obj
-            project[j][2] = new Date(project[j][2]);
-        }
-        
-    }
-    return projectsArray;
-}
-
-export function clearProjects() {
-    while (projectHandler.getProjectCount() != 0) {
-        projectHandler.removeProject(0);
-    }
-}

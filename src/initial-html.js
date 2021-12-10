@@ -69,6 +69,10 @@ pTodoTodayCount.setAttribute('id', 'pTodoTodayCount');
 pTodoWeekCount.setAttribute('id', 'pTodoWeekCount');
 btnTodoTodayCollapse.style['display'] = 'none';
 btnTodoWeekCollapse.style['display'] = 'none';
+btnTodoTodayExp.classList.add('auto-list-exp-or-coll-btn');
+btnTodoTodayCollapse.classList.add('auto-list-exp-or-coll-btn');
+btnTodoWeekExp.classList.add('auto-list-exp-or-coll-btn');
+btnTodoWeekCollapse.classList.add('auto-list-exp-or-coll-btn');
 
 //build initial HTML 
 //------------------
@@ -243,7 +247,8 @@ function clickBtnTodoTodayExpand() {
             if (rawPriority == 3) taskPriority = 'Priority: Low';
             if (rawPriority == 2) taskPriority = 'Priority: Medium';
             if (rawPriority == 1) taskPriority = 'Priority: High';
-            pPriority.textContent = taskPriority;
+            if (rawPriority == 0) pPriority.textContent = '';
+            else pPriority.textContent = taskPriority;
 
             let doneStatus = projObj.getTaskDoneStatus(j);
             if (doneStatus == true) {
@@ -297,10 +302,12 @@ function clickBtnTodoWeekExp() {
             let divTask = document.createElement('div');
             let divTaskInd = document.createElement('div');
             let divBtnTitle = document.createElement('div');
+            let divDateAndPrior = document.createElement('div');
             let btnDone = document.createElement('button');
             let pTaskTitle = document.createElement('p');
             let pPriority = document.createElement('p');
             let pDesc = document.createElement('p');
+            let pDueDate = document.createElement('p');
 
             divTask.classList.add('new-task-div');
             divTaskInd.classList.add('indiv-task-div');
@@ -312,11 +319,15 @@ function clickBtnTodoWeekExp() {
             btnDone.setAttribute('id', `wee_${i}_${j}_btnDone`);
 
             pPriority.style['margin-left'] = 'auto';
+            divDateAndPrior.style['display'] = 'flex';
 
             //button click events 
             btnDone.addEventListener('click', clickBtnDoneInit)
 
             //text content and styles 
+            let taskDate = projObj.getTaskDueDate(j);
+            let date = format(projObj.getTaskDueDate(j), 'MM/dd/yy');
+            pDueDate.textContent = `Due: ${date}`;
             pTaskTitle.textContent = projObj.getTaskTitle(j);
             pDesc.textContent = `Desc: ${projObj.getTaskDesc(j)}`;
             let rawPriority = projObj.getTaskPriority(j)
@@ -341,7 +352,9 @@ function clickBtnTodoWeekExp() {
             divTaskInd.appendChild(divBtnTitle);
             divBtnTitle.appendChild(btnDone);
             divBtnTitle.appendChild(pTaskTitle);
-            divTaskInd.appendChild(pPriority);
+            divTaskInd.appendChild(divDateAndPrior);
+            divDateAndPrior.appendChild(pDueDate);
+            divDateAndPrior.appendChild(pPriority);
             divTask.appendChild(pDesc);
         }
         if (wasTaskAdded == false) {

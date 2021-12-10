@@ -40,20 +40,27 @@ h4 {
 
 .auto-container-div {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    row-gap: 24px;
+    column-gap: 24px;
 }
 
 .project-container-div {
     display: flex;
-    flex-direction: column;
+    flex-flow: row wrap;
+    row-gap: 24px;
+    column-gap: 24px;
 }
 
 .project-div{
     margin-top: 16px;
-    width: 400px;
+    min-width: 400px;
     min-height: 80px;
+    width: 400px;
     height: 100%;
     padding: 4px;
+    margin-right: 0px;
+    justify-items: space-between;
 }
 
 .project-div-auto {
@@ -61,6 +68,8 @@ h4 {
     width: 400px;
     height: 100%;
     padding: 4px;
+    display: flex;
+    flex-direction: column;
 }
 
 .new-task-div {
@@ -70,8 +79,8 @@ h4 {
 
 .indiv-task-div {
     display: flex;
+    flex-direction: column;
     justify-content: flex-start;
-    gap: 24px;
 }
 
 .indiv-task-btn-and-title-div {
@@ -79,11 +88,16 @@ h4 {
 }
 
 .indiv-task-exp-btn {
-    
     display: flex;
     justify-content: flex-end;
-    margin-left: auto;
-    gap: 24px;
+}
+
+.indiv-task-exp-btn p {
+    margin-right: 24px;
+}
+
+#task-due-date {
+    margin-right: auto;
 }
 
 .project-card-space-btwn {
@@ -96,4 +110,9 @@ h4 {
     border-radius: 50%;
     width: 25px;
     height: 25px;
+    margin-right: 8px;
+}
+
+.auto-list-exp-or-coll-btn {
+    margin-left: auto;
 }
