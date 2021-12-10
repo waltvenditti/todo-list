@@ -1,7 +1,7 @@
-const {format, addDays, isBefore, isAfter, isDate, isValid, parse} = require('date-fns');
+const {format, addDays, isBefore, isAfter} = require('date-fns');
 const { pt, te } = require('date-fns/locale');
 import {projectHandler} from './factory-functions.js';
-import {makeProjectCards, clearProjectCards, getCardID, getProjIndex, getTaskIndex, getDoneStatus} from './dynamic-html.js';
+import {makeProjectCards, clearProjectCards, getCardID, getProjIndex, getTaskIndex, getDoneStatus, saveProjectsToLocalStorage, reconstituteProjectArray, clearProjects, restoreDefaultProjects} from './dynamic-html.js';
 
 //create header DOM elements
 const body = document.querySelector('body');
@@ -24,6 +24,7 @@ const btnTodoTodayExp = document.createElement('button');
 const btnTodoTodayCollapse = document.createElement('button');
 const btnTodoWeekExp = document.createElement('button');
 const btnTodoWeekCollapse = document.createElement('button');
+const btnReset = document.createElement('button');
 
 const newProjNameField = document.createElement('input');
 
@@ -49,6 +50,7 @@ btnTodoTodayExp.textContent = 'Expand';
 btnTodoWeekExp.textContent = 'Expand';
 btnTodoTodayCollapse.textContent = 'Collapse';
 btnTodoWeekCollapse.textContent = 'Collapse';
+btnReset.textContent = 'Reset to Example Projects'
 h2AutoListTitle.textContent = 'Auto Lists';
 h2ProjDivTitle.textContent = 'Projects';
 
@@ -78,6 +80,7 @@ btnTodoWeekCollapse.classList.add('auto-list-exp-or-coll-btn');
 //------------------
 body.appendChild(header);
 header.appendChild(h1);
+header.appendChild(btnReset);
 
 //header.appendChild(divNewTask);
 body.appendChild(h2AutoListTitle);
@@ -107,52 +110,7 @@ divnewProjBtns.appendChild(btnNewProjCancel);
 body.appendChild(divProjectList);
 
 
-
-//helper functions
-export function checkIfDueToday(projIndex, taskIndex, todayDate) {
-    let projObj = projectHandler.getProject(projIndex);
-    let fTodayDate = format(todayDate, 'dd-MMM-yyyy');
-    let taskDate = projObj.getTaskDueDate(taskIndex);
-    if (taskDate == null) return false;
-    let fTaskDate = format(taskDate, 'dd-MMM-yyyy');
-        if (fTodayDate == fTaskDate) {
-        return true;
-    } else return false; 
-}
-
-export function checkIfDueThisWeek(projIndex, taskIndex) {
-    let todayDate = new Date();
-    let todayPlusEight = addDays(todayDate, 8); 
-    let projObj = projectHandler.getProject(projIndex);
-    let taskDate = projObj.getTaskDueDate(taskIndex);
-    if (taskDate == null) return false;
-    if (isAfter(taskDate, todayDate) && isBefore(taskDate, todayPlusEight)) {
-        return true;
-    } else return false; 
-}
-
-function changeTaskAppearanceInitial(inputID) {
-    let cardID = getCardID(inputID);
-    let projIndex = getProjIndex(cardID);
-    let taskIndex = getTaskIndex(inputID);
-    let projObj = projectHandler.getProject(projIndex);
-    let taskDoneStatus = projObj.getTaskDoneStatus(taskIndex);
-    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_divTask`);
-    let pElements = divTaskInd.querySelectorAll('p');
-
-    if (taskDoneStatus == true) {
-        for (let i = 0; i < pElements.length; i++) {
-            pElements[i].style['color'] = 'grey'
-        }
-    } else {
-        for (let i = 0; i < pElements.length; i++) {
-            pElements[i].style['color'] = 'black';
-        };
-    };
-}
-
-
-//button listeners
+//button listeners and functions
 btnNewProj.addEventListener('click', () => {
     divNewProj.style['display'] = 'flex';
 });
@@ -182,13 +140,21 @@ btnNewProjAccept.addEventListener('click', () => {
     divNewProj.style['display'] = 'none';
     clearProjectCards();
     makeProjectCards();
-    //generate new project card 
+    saveProjectsToLocalStorage();
 });
 
 btnTodoTodayExp.addEventListener('click', clickBtnTodoTodayExpand);
 btnTodoTodayCollapse.addEventListener('click', clickBtnTodoTodayCollapse);
 btnTodoWeekExp.addEventListener('click', clickBtnTodoWeekExp);
 btnTodoWeekCollapse.addEventListener('click', clickBtnTodoWeekCollapse);
+btnReset.addEventListener('click', () => {
+    clearProjectCards();
+    clearProjects();
+    localStorage.clear();
+    restoreDefaultProjects();
+    reconstituteProjectArray();
+    makeProjectCards();
+});
 
 function clickBtnTodoTodayExpand() {
     let todaysDate = new Date();
@@ -419,4 +385,48 @@ export function clickBtnDoneInit() {
         } 
     }
     changeTaskAppearanceInitial(this.id);
+    saveProjectsToLocalStorage();
+}
+
+//helper functions
+export function checkIfDueToday(projIndex, taskIndex, todayDate) {
+    let projObj = projectHandler.getProject(projIndex);
+    let fTodayDate = format(todayDate, 'dd-MMM-yyyy');
+    let taskDate = projObj.getTaskDueDate(taskIndex);
+    if (taskDate == null) return false;
+    let fTaskDate = format(taskDate, 'dd-MMM-yyyy');
+        if (fTodayDate == fTaskDate) {
+        return true;
+    } else return false; 
+}
+
+export function checkIfDueThisWeek(projIndex, taskIndex) {
+    let todayDate = new Date();
+    let todayPlusEight = addDays(todayDate, 8); 
+    let projObj = projectHandler.getProject(projIndex);
+    let taskDate = projObj.getTaskDueDate(taskIndex);
+    if (taskDate == null) return false;
+    if (isAfter(taskDate, todayDate) && isBefore(taskDate, todayPlusEight)) {
+        return true;
+    } else return false; 
+}
+
+function changeTaskAppearanceInitial(inputID) {
+    let cardID = getCardID(inputID);
+    let projIndex = getProjIndex(cardID);
+    let taskIndex = getTaskIndex(inputID);
+    let projObj = projectHandler.getProject(projIndex);
+    let taskDoneStatus = projObj.getTaskDoneStatus(taskIndex);
+    let divTaskInd = document.querySelector(`#${cardID}_${taskIndex}_divTask`);
+    let pElements = divTaskInd.querySelectorAll('p');
+
+    if (taskDoneStatus == true) {
+        for (let i = 0; i < pElements.length; i++) {
+            pElements[i].style['color'] = 'grey'
+        }
+    } else {
+        for (let i = 0; i < pElements.length; i++) {
+            pElements[i].style['color'] = 'black';
+        };
+    };
 }

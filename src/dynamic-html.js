@@ -1,5 +1,5 @@
 import {projectHandler} from './factory-functions.js';
-import { checkIfDueToday, clickBtnTodoTodayCollapse, clickBtnDoneInit, checkIfDueThisWeek, clickBtnTodoWeekCollapse } from './initial-html.js';
+import { checkIfDueToday, clickBtnTodoTodayCollapse, checkIfDueThisWeek, clickBtnTodoWeekCollapse } from './initial-html.js';
 const {format, parse, addDays} = require('date-fns');
 
 export function updateAutoListItemCount() {
@@ -139,6 +139,7 @@ export function makeProjectCards() {
         divBtns.classList.add('project-card-space-btwn');
         divProp2.classList.add('project-card-space-btwn');
         divNewTask.classList.add('new-task-div');
+        btnDelProj.classList.add('del-proj-btn');
 
         //styles
         btnCloseProp.style['display'] = 'none';
@@ -148,6 +149,7 @@ export function makeProjectCards() {
         btnCollapse.style['display'] = 'none';
         divNewTask.style['display'] = 'none';
         btnCancelAddTask.style['display'] = 'none';
+        pTaskCount.style['margin-left'] = '6px';
 
         //text content
         pProjTitle.textContent = projName;
@@ -316,6 +318,7 @@ function clickBtnDelProj() {
     clearProjectCards();
     projectHandler.removeProject(projectIndex);
     makeProjectCards();
+    saveProjectsToLocalStorage();
 }
 
 function clickBtnNewName() {
@@ -332,6 +335,7 @@ function clickBtnNewName() {
         inputProjName.value = '';
         inputProjName.setAttribute('placeholder', `${projectHandler.getProject(index).getProjName()}`);
         clickBtnCloseProp(cardID);
+        saveProjectsToLocalStorage();
     }
 }
 
@@ -452,6 +456,7 @@ function clickBtnDelDoneTasks() {
     updateAutoListItemCount();
     clickBtnTodoTodayCollapse();
     clickBtnTodoWeekCollapse();
+    saveProjectsToLocalStorage();
 }
 
 function clickBtnDone() {
@@ -500,12 +505,15 @@ function clickBtnTaskExpand() {
     btnDelTask.textContent = 'Delete Task';
     btnCancelEditTask.textContent = 'Cancel Edit Task';
 
+    btnDelTask.classList.add('del-task-btn');
+
     divButtons.classList.add('project-card-space-btwn');
     btnEditTask.setAttribute('id', `${cardID}_${taskIndex}_btnEditTask`);
     btnCancelEditTask.setAttribute('id', `${cardID}_${taskIndex}_btnCancelEditTask`);
     btnDelTask.setAttribute('id', `${cardID}_${taskIndex}_btnDelTask`);
     divTaskIndNew.setAttribute('id', `${cardID}_${taskIndex}_divTaskIndNew`);
     btnCancelEditTask.style['display'] = 'none';
+    pDesc.style['margin-left'] = '4px';
 
     let taskDoneStatus = projObj.getTaskDoneStatus(taskIndex);
     if (taskDoneStatus == true) {
@@ -1016,7 +1024,9 @@ export function reconstituteProjectArray() {
             let taskDesc = projects[i][j][1];
             let taskDueDate = projects[i][j][2];
             let taskPriority = projects[i][j][3];
-            let taskDoneStatus = projects[i][j][4];
+            let taskDoneStatus;
+            if (projects[i][j][4] == 'true') taskDoneStatus = true;
+            else taskDoneStatus = false; 
             projObj.addTask(taskTitle, taskDesc, taskDueDate, taskPriority, taskDoneStatus);
         }
     }
@@ -1045,5 +1055,3 @@ export function restoreDefaultProjects() {
     marathonPrep.addTask('Marathon Day', '', addDays(new Date(), 41), 1, false);
     saveProjectsToLocalStorage();
 }
-
-//saveProjectsToLocalStorage is not storing the doneStatus for some reason

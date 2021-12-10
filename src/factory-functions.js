@@ -1,4 +1,3 @@
-import { clearProjectCards, updateAutoListItemCount } from './dynamic-html';
 
 export const taskFactory = function(initTitle, initDesc, initDueDate, initPriority, initDoneStatus) {
     let title = initTitle;
