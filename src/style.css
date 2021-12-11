@@ -35,6 +35,7 @@ h4 {
 }
 
 button {
+    border: 2px solid slategrey;
     border-radius: 4px;
     padding: 6px;
     margin: 6px;
@@ -44,6 +45,8 @@ input {
     margin: 4px;
     margin-top: 0;
     background-color: whitesmoke;
+    border: 2px solid slategrey;
+    border-radius: 4px;
 }
 
 .header-input-div {
@@ -72,6 +75,7 @@ input {
 }
 
 .project-div{
+    background-color: aliceblue;
     border: 2px solid black;
     border-radius: 4px;
     margin-top: 16px;
@@ -84,6 +88,7 @@ input {
 }
 
 .project-div-auto {
+    background-color: ghostwhite;
     border: 2px solid black;
     border-radius: 4px;
     padding: 8px;
@@ -92,6 +97,23 @@ input {
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.project-div-auto p {
+    margin: 4px;
+}
+
+.project-div-auto div p {
+    margin-right: 8px;
+    margin-left: 8px;
+}
+
+.project-div-auto .new-task-div {
+    margin-bottom: 20px; 
+}
+
+.project-div-auto .new-task-div:last-child {
+    margin-bottom: 0;
 }
 
 .new-task-div {
@@ -123,6 +145,10 @@ input {
     margin-bottom: 4px;
     margin-top: 4px;
     margin-left: 4px;
+}
+
+.indiv-task-btn-and-title-div p {
+    padding-top: 4px;
 }
 
 .indiv-task-exp-btn {
